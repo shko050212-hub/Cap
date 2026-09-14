@@ -25,9 +25,7 @@ export default function MuseumLobby() {
   const [verifyCode, setVerifyCode] = useState('');
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
-  // Phone Verification States
-  const [isPhoneSent, setIsPhoneSent] = useState(false);
-  const [phoneVerifyCode, setPhoneVerifyCode] = useState('');
+  // Phone Verification States (PASS Mock)
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
 
   useEffect(() => {
@@ -46,28 +44,20 @@ export default function MuseumLobby() {
     // Reset all states
     setEmail(''); setPassword(''); setName(''); setPhone(''); setHeight('');
     setIsEmailVerified(false); setIsEmailSent(false); setVerifyCode('');
-    setIsPhoneVerified(false); setIsPhoneSent(false); setPhoneVerifyCode('');
+    setIsPhoneVerified(false);
   };
 
-  const handleSendPhoneVerification = () => {
+  const handlePassVerification = () => {
     if (!phone) {
       alert('휴대폰 번호를 입력해주세요.');
       return;
     }
-    // 캡스톤 비용 절감을 위해 실제 SMS 발송 대신 임시 코드를 얼럿으로 띄워줍니다.
-    const fakeCode = Math.floor(100000 + Math.random() * 900000).toString();
-    alert(`[테스트용 문자 수신] 인증번호는 [${fakeCode}] 입니다.`);
-    setIsPhoneSent(true);
-    // 실제 프로덕션에서는 이 코드를 백엔드로 보내 저장해야 하지만 테스트용이므로 프론트 변수에 임시로 둡니다.
-    (window as any).tempPhoneCode = fakeCode;
-  };
-
-  const handleVerifyPhoneCode = () => {
-    if (phoneVerifyCode === (window as any).tempPhoneCode) {
-      alert('휴대폰 인증이 완료되었습니다.');
+    
+    // 캡스톤 프로젝트용 PASS 본인인증 시뮬레이션
+    const isConfirmed = window.confirm('실제 서비스라면 여기서 나이스평가정보 / 다날 등의 PASS 본인인증 팝업창이 뜹니다.\n\n[확인] 버튼을 누르면 PASS 앱 인증을 성공적으로 마친 것으로 시뮬레이션 합니다.');
+    
+    if (isConfirmed) {
       setIsPhoneVerified(true);
-    } else {
-      alert('인증번호가 일치하지 않습니다.');
     }
   };
 
@@ -354,27 +344,21 @@ export default function MuseumLobby() {
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
 
-                    {/* 휴대폰 번호 및 인증 */}
+                    {/* 휴대폰 번호 및 PASS 인증 */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700">휴대폰 번호</label>
+                      <label className="block text-sm font-semibold text-gray-700">휴대폰 번호 (PASS 인증)</label>
                       <div className="flex gap-2 mt-1">
                         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isPhoneVerified} placeholder="010-0000-0000" required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
                         <button 
                           type="button" 
-                          onClick={handleSendPhoneVerification}
+                          onClick={handlePassVerification}
                           disabled={isPhoneVerified}
-                          className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
+                          className="px-3 py-1 bg-[#ff0000] text-white text-sm font-bold rounded-md hover:bg-[#cc0000] transition-colors disabled:opacity-50"
                         >
-                          {isPhoneSent ? '재전송' : '인증요청'}
+                          {isPhoneVerified ? '인증완료' : 'PASS 본인인증'}
                         </button>
                       </div>
-                      {isPhoneSent && !isPhoneVerified && (
-                        <div className="mt-2 flex gap-2">
-                          <input type="text" value={phoneVerifyCode} onChange={(e) => setPhoneVerifyCode(e.target.value)} placeholder="인증번호 6자리" className="flex-1 text-sm border-b-2 border-green-400 focus:border-green-600 outline-none py-1 text-black" />
-                          <button type="button" onClick={handleVerifyPhoneCode} className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-md hover:bg-green-600 transition-colors">확인</button>
-                        </div>
-                      )}
-                      {isPhoneVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ 휴대폰 인증이 완료되었습니다.</p>}
+                      {isPhoneVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ PASS 본인인증이 완료되었습니다.</p>}
                     </div>
 
                     {/* 신장 복구 */}

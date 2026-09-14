@@ -25,6 +25,11 @@ export default function MuseumLobby() {
   const [verifyCode, setVerifyCode] = useState('');
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
+  // Phone Verification States
+  const [isPhoneSent, setIsPhoneSent] = useState(false);
+  const [phoneVerifyCode, setPhoneVerifyCode] = useState('');
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -32,6 +37,39 @@ export default function MuseumLobby() {
       setIsAuthenticated(true);
     }
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    setIsReturningUser(false);
+    setMode('LOGIN');
+    // Reset all states
+    setEmail(''); setPassword(''); setName(''); setPhone(''); setHeight('');
+    setIsEmailVerified(false); setIsEmailSent(false); setVerifyCode('');
+    setIsPhoneVerified(false); setIsPhoneSent(false); setPhoneVerifyCode('');
+  };
+
+  const handleSendPhoneVerification = () => {
+    if (!phone) {
+      alert('휴대폰 번호를 입력해주세요.');
+      return;
+    }
+    // 캡스톤 비용 절감을 위해 실제 SMS 발송 대신 임시 코드를 얼럿으로 띄워줍니다.
+    const fakeCode = Math.floor(100000 + Math.random() * 900000).toString();
+    alert(`[테스트용 문자 수신] 인증번호는 [${fakeCode}] 입니다.`);
+    setIsPhoneSent(true);
+    // 실제 프로덕션에서는 이 코드를 백엔드로 보내 저장해야 하지만 테스트용이므로 프론트 변수에 임시로 둡니다.
+    (window as any).tempPhoneCode = fakeCode;
+  };
+
+  const handleVerifyPhoneCode = () => {
+    if (phoneVerifyCode === (window as any).tempPhoneCode) {
+      alert('휴대폰 인증이 완료되었습니다.');
+      setIsPhoneVerified(true);
+    } else {
+      alert('인증번호가 일치하지 않습니다.');
+    }
+  };
 
   const handleSendVerification = async () => {
     if (!email) {
@@ -124,6 +162,10 @@ export default function MuseumLobby() {
       alert('이메일 인증을 먼저 완료해주세요.');
       return;
     }
+    if (!isPhoneVerified) {
+      alert('휴대폰 인증을 먼저 완료해주세요.');
+      return;
+    }
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -154,20 +196,40 @@ export default function MuseumLobby() {
 
   if (isReturningUser) {
     return (
-      <motion.div
-        initial={{ y: '-100vh', opacity: 0, scale: 0.8 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', bounce: 0.6, duration: 1.2 }}
-        className="w-full h-screen bg-gray-50 flex flex-col items-center justify-center"
-      >
-        <div className="w-16 h-16 rounded-full bg-black mb-4 shadow-xl"></div>
-        <h1 className="text-3xl font-bold tracking-tight text-black">다시 오셨군요, 갤러리에 착지했습니다.</h1>
-      </motion.div>
+      <div className="relative w-full h-screen bg-gray-50 flex flex-col items-center justify-center">
+        {/* 우측 상단 로그아웃 버튼 */}
+        <button 
+          onClick={handleLogout}
+          className="absolute top-6 right-8 px-4 py-2 bg-black text-white text-sm font-bold rounded-full hover:bg-gray-800 transition-colors z-50 shadow-md"
+        >
+          로그아웃
+        </button>
+
+        <motion.div
+          initial={{ y: '-100vh', opacity: 0, scale: 0.8 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', bounce: 0.6, duration: 1.2 }}
+          className="flex flex-col items-center justify-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-black mb-4 shadow-xl"></div>
+          <h1 className="text-3xl font-bold tracking-tight text-black">다시 오셨군요, 갤러리에 착지했습니다.</h1>
+        </motion.div>
+      </div>
     );
   }
 
   return (
-    <div className="flex w-full h-screen overflow-hidden bg-black font-sans">
+    <div className="relative flex w-full h-screen overflow-hidden bg-black font-sans">
+      
+      {/* 갤러리 메인 진입 후(문 열림 상태) 보여줄 로그아웃 버튼 */}
+      {isAuthenticated && !isReturningUser && (
+        <button 
+          onClick={handleLogout}
+          className="absolute top-6 right-8 px-4 py-2 bg-black text-white text-sm font-bold rounded-full hover:bg-gray-800 transition-colors z-50 shadow-md"
+        >
+          로그아웃
+        </button>
+      )}
       <div className="relative w-[65%] h-full flex">
         <motion.div
           animate={isAuthenticated ? { x: '-100%' } : { x: 0 }}
@@ -284,10 +346,27 @@ export default function MuseumLobby() {
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
 
-                    {/* 휴대폰 번호 */}
+                    {/* 휴대폰 번호 및 인증 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">휴대폰 번호</label>
-                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <div className="flex gap-2 mt-1">
+                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isPhoneVerified} placeholder="010-0000-0000" required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
+                        <button 
+                          type="button" 
+                          onClick={handleSendPhoneVerification}
+                          disabled={isPhoneVerified}
+                          className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
+                        >
+                          {isPhoneSent ? '재전송' : '인증요청'}
+                        </button>
+                      </div>
+                      {isPhoneSent && !isPhoneVerified && (
+                        <div className="mt-2 flex gap-2">
+                          <input type="text" value={phoneVerifyCode} onChange={(e) => setPhoneVerifyCode(e.target.value)} placeholder="인증번호 6자리" className="flex-1 text-sm border-b-2 border-green-400 focus:border-green-600 outline-none py-1 text-black" />
+                          <button type="button" onClick={handleVerifyPhoneCode} className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-md hover:bg-green-600 transition-colors">확인</button>
+                        </div>
+                      )}
+                      {isPhoneVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ 휴대폰 인증이 완료되었습니다.</p>}
                     </div>
 
                     {/* 신장 복구 */}
@@ -297,7 +376,7 @@ export default function MuseumLobby() {
                     </div>
                     
                     <div className="pt-4">
-                      <button type="submit" disabled={!isEmailVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
+                      <button type="submit" disabled={!isEmailVerified || !isPhoneVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
                         회원가입 및 발권
                       </button>
                     </div>

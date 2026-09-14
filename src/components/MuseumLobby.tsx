@@ -15,7 +15,6 @@ export default function MuseumLobby() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [height, setHeight] = useState('');
   const [userRole, setUserRole] = useState('BUYER');
 
@@ -24,9 +23,6 @@ export default function MuseumLobby() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-
-  // Phone Verification States (PASS Mock)
-  // removed
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -42,7 +38,7 @@ export default function MuseumLobby() {
     setIsReturningUser(false);
     setMode('LOGIN');
     // Reset all states
-    setEmail(''); setPassword(''); setName(''); setPhone(''); setHeight('');
+    setEmail(''); setPassword(''); setName(''); setHeight('');
     setIsEmailVerified(false); setIsEmailSent(false); setVerifyCode('');
   };
 
@@ -153,7 +149,6 @@ export default function MuseumLobby() {
           email,
           password,
           name,
-          phone,
           height_cm: parseFloat(height)
         })
       });
@@ -323,12 +318,6 @@ export default function MuseumLobby() {
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
-                    </div>
-
-                    {/* 휴대폰 번호 */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700">휴대폰 번호</label>
-                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
 
                     {/* 신장 복구 */}

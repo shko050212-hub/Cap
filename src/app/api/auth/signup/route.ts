@@ -6,7 +6,7 @@ import { db } from '@/lib/db';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, name, phone, height_cm, role, bank_name, bank_account } = body;
+    const { email, password, name, height_cm, role, bank_name, bank_account } = body;
 
     // 빈 값 체크
     if (!email || !password || !name || !height_cm) {
@@ -27,16 +27,15 @@ export async function POST(request: Request) {
 
     const password_hash = await bcrypt.hash(password, 10);
     
-    // Default height_cm to 170.0 if not provided to satisfy DB schema for now
-    const userHeight = height_cm || 170.0;
+    // DB 저장 (phone 컬럼 생략)
+    const insertQuery = `
+      INSERT INTO users (email, password_hash, name, role, height_cm, bank_name, bank_account)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, email, role, height_cm
+    `;
+    const values = [email, password_hash, name, role || 'BUYER', height_cm || 170.0, bank_name || null, bank_account || null];
 
-    // DB Insert (PostgreSQL)
-    const result = await db.query(
-      `INSERT INTO users (email, password_hash, name, phone, role, height_cm, bank_name, bank_account)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, email, role, height_cm`,
-      [email, password_hash, name, phone, role || 'BUYER', userHeight, bank_name, bank_account]
-    );
-
+    const result = await db.query(insertQuery, values);
     const user = result.rows[0];
 
     // JWT 발급

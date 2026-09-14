@@ -10,6 +10,7 @@ export const db =
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),
     database: process.env.DB_NAME || 'artmart_db',
+    ssl: { rejectUnauthorized: false }, // AWS RDS 연결을 위한 SSL 설정
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPg.pgPool = db;

@@ -30,11 +30,7 @@ export default function MuseumLobby() {
   const [loginEmail, setLoginEmail] = useState('');
   const [otpToken, setOtpToken] = useState('');
 
-  // Email Verification States
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
-  const [verifyCode, setVerifyCode] = useState('');
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');

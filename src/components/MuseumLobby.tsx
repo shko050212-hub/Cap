@@ -8,13 +8,22 @@ export default function MuseumLobby() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isReturningUser, setIsReturningUser] = useState(false);
   const [mode, setMode] = useState<'LOGIN' | 'LOGIN_OTP' | 'SIGNUP'>('LOGIN');
-  const [isEmailSent, setIsEmailSent] = useState(false);
+  
   const router = useRouter();
 
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userRole, setUserRole] = useState('BUYER'); // to remember role for OTP step
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [height, setHeight] = useState('');
+  const [userRole, setUserRole] = useState('BUYER');
+
+  // Email Verification States
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,6 +32,54 @@ export default function MuseumLobby() {
       setIsAuthenticated(true);
     }
   }, []);
+
+  const handleSendVerification = async () => {
+    if (!email) {
+      alert('이메일을 먼저 입력해주세요.');
+      return;
+    }
+    setIsSendingEmail(true);
+    try {
+      const res = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setIsEmailSent(true);
+      } else {
+        alert(data.error || '메일 발송 실패');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버 에러가 발생했습니다.');
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!verifyCode) return;
+    try {
+      const res = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: verifyCode })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        setIsEmailVerified(true);
+      } else {
+        alert(data.error || '인증 실패');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버 에러가 발생했습니다.');
+    }
+  };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,10 +118,38 @@ export default function MuseumLobby() {
     }, 1500);
   };
 
-  const handleSignupSubmit = (e: React.FormEvent) => {
+  const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsAuthenticated(true);
-    setTimeout(() => { router.push('/gallery'); }, 1500);
+    if (!isEmailVerified) {
+      alert('이메일 인증을 먼저 완료해주세요.');
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          phone,
+          height_cm: parseFloat(height)
+        })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        alert('회원가입이 완료되었습니다!');
+        setIsAuthenticated(true);
+        setTimeout(() => { router.push('/gallery'); }, 1500);
+      } else {
+        alert(data.error || '회원가입 실패');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버 에러가 발생했습니다.');
+    }
   };
 
   if (isReturningUser) {
@@ -164,39 +249,55 @@ export default function MuseumLobby() {
                 <>
                   <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">새로운 관람객 등록</h2>
                   <form onSubmit={handleSignupSubmit} className="space-y-4">
+                    {/* 이름 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">이름</label>
-                      <input type="text" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
+
+                    {/* 이메일 및 인증 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">이메일</label>
                       <div className="flex gap-2 mt-1">
-                        <input type="email" required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
-                        <button type="button" onClick={() => setIsEmailSent(true)} className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors">
-                          {isEmailSent ? '재전송' : '인증요청'}
+                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isEmailVerified} required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
+                        <button 
+                          type="button" 
+                          onClick={handleSendVerification}
+                          disabled={isEmailVerified || isSendingEmail}
+                          className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
+                        >
+                          {isSendingEmail ? '발송중...' : isEmailSent ? '재전송' : '인증요청'}
                         </button>
                       </div>
-                      {isEmailSent && (
+                      {isEmailSent && !isEmailVerified && (
                         <div className="mt-2 flex gap-2">
-                          <input type="text" placeholder="인증번호 입력" className="flex-1 text-sm border-b-2 border-green-400 focus:border-green-600 outline-none py-1 text-black" />
-                          <button type="button" className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-md hover:bg-green-600 transition-colors">확인</button>
+                          <input type="text" value={verifyCode} onChange={(e) => setVerifyCode(e.target.value)} placeholder="인증번호 6자리" className="flex-1 text-sm border-b-2 border-green-400 focus:border-green-600 outline-none py-1 text-black" />
+                          <button type="button" onClick={handleVerifyCode} className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-md hover:bg-green-600 transition-colors">확인</button>
                         </div>
                       )}
+                      {isEmailVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ 이메일 인증이 완료되었습니다.</p>}
                     </div>
+
+                    {/* 비밀번호 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
-                      <input type="password" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
+
+                    {/* 휴대폰 번호 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">휴대폰 번호</label>
-                      <input type="tel" placeholder="010-0000-0000" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
+
+                    {/* 신장 복구 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">신장 (height_cm)</label>
-                      <input type="number" step="0.1" required placeholder="예: 175.5" className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <input type="number" step="0.1" value={height} onChange={(e) => setHeight(e.target.value)} required placeholder="예: 175.5" className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
+                    
                     <div className="pt-4">
-                      <button type="submit" className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
+                      <button type="submit" disabled={!isEmailVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
                         회원가입 및 발권
                       </button>
                     </div>

@@ -166,6 +166,14 @@ export default function MuseumLobby() {
       alert('휴대폰 인증을 먼저 완료해주세요.');
       return;
     }
+
+    // 비밀번호 유효성 검사 (8자 이상, 특수문자 포함)
+    const passwordRegex = /^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    if (!password || !passwordRegex.test(password)) {
+      alert('비밀번호는 8글자 이상이어야 하며, 특수문자를 최소 1개 이상 포함해야 합니다.');
+      return;
+    }
+
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',

@@ -6,7 +6,7 @@ import { db } from '@/lib/db';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, name, phone, height_cm, role, bank_name, bank_account } = body;
+    const { email, password, name, height_cm, role, bank_name, bank_account } = body;
 
     // 빈 값 체크
     if (!email || !password || !name || !height_cm) {

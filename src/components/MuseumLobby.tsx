@@ -129,8 +129,30 @@ export default function MuseumLobby() {
       }
     } catch (err) {
       console.error(err);
+      alert('서버 에러가 발생했습니다.');
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/auth/verify-login-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, otpToken })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        setIsAuthenticated(true);
+        setTimeout(() => { router.push(data.role === 'ADMIN' ? '/admin' : '/gallery'); }, 1500);
+      } else {
+        alert(data.error || 'OTP 인증 실패');
       }
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      alert('서버 에러가 발생했습니다.');
+    }
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {

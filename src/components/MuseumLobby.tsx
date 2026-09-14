@@ -26,7 +26,7 @@ export default function MuseumLobby() {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   // Phone Verification States (PASS Mock)
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  // removed
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -44,21 +44,6 @@ export default function MuseumLobby() {
     // Reset all states
     setEmail(''); setPassword(''); setName(''); setPhone(''); setHeight('');
     setIsEmailVerified(false); setIsEmailSent(false); setVerifyCode('');
-    setIsPhoneVerified(false);
-  };
-
-  const handlePassVerification = () => {
-    if (!phone) {
-      alert('휴대폰 번호를 입력해주세요.');
-      return;
-    }
-    
-    // 캡스톤 프로젝트용 PASS 본인인증 시뮬레이션
-    const isConfirmed = window.confirm('실제 서비스라면 여기서 나이스평가정보 / 다날 등의 PASS 본인인증 팝업창이 뜹니다.\n\n[확인] 버튼을 누르면 PASS 앱 인증을 성공적으로 마친 것으로 시뮬레이션 합니다.');
-    
-    if (isConfirmed) {
-      setIsPhoneVerified(true);
-    }
   };
 
   const handleSendVerification = async () => {
@@ -150,10 +135,6 @@ export default function MuseumLobby() {
     e.preventDefault();
     if (!isEmailVerified) {
       alert('이메일 인증을 먼저 완료해주세요.');
-      return;
-    }
-    if (!isPhoneVerified) {
-      alert('휴대폰 인증을 먼저 완료해주세요.');
       return;
     }
 
@@ -344,21 +325,10 @@ export default function MuseumLobby() {
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
 
-                    {/* 휴대폰 번호 및 PASS 인증 */}
+                    {/* 휴대폰 번호 */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700">휴대폰 번호 (PASS 인증)</label>
-                      <div className="flex gap-2 mt-1">
-                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isPhoneVerified} placeholder="010-0000-0000" required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
-                        <button 
-                          type="button" 
-                          onClick={handlePassVerification}
-                          disabled={isPhoneVerified}
-                          className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
-                        >
-                          {isPhoneVerified ? '인증완료' : '본인인증'}
-                        </button>
-                      </div>
-                      {isPhoneVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ PASS 본인인증이 완료되었습니다.</p>}
+                      <label className="block text-sm font-semibold text-gray-700">휴대폰 번호</label>
+                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
 
                     {/* 신장 복구 */}
@@ -368,7 +338,7 @@ export default function MuseumLobby() {
                     </div>
                     
                     <div className="pt-4">
-                      <button type="submit" disabled={!isEmailVerified || !isPhoneVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
+                      <button type="submit" disabled={!isEmailVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
                         회원가입 및 발권
                       </button>
                     </div>

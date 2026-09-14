@@ -15,6 +15,7 @@ export default function MuseumLobby() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [height, setHeight] = useState('');
   const [userRole, setUserRole] = useState('BUYER');
 
@@ -23,6 +24,9 @@ export default function MuseumLobby() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [verifyCode, setVerifyCode] = useState('');
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  // Phone Verification States (PASS Mock)
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,8 +42,23 @@ export default function MuseumLobby() {
     setIsReturningUser(false);
     setMode('LOGIN');
     // Reset all states
-    setEmail(''); setPassword(''); setName(''); setHeight('');
+    setEmail(''); setPassword(''); setName(''); setPhone(''); setHeight('');
     setIsEmailVerified(false); setIsEmailSent(false); setVerifyCode('');
+    setIsPhoneVerified(false);
+  };
+
+  const handlePassVerification = () => {
+    if (!phone) {
+      alert('휴대폰 번호를 입력해주세요.');
+      return;
+    }
+    
+    // 캡스톤 프로젝트용 PASS 본인인증 시뮬레이션
+    const isConfirmed = window.confirm('실제 서비스라면 여기서 나이스평가정보 / 다날 등의 PASS 본인인증 팝업창이 뜹니다.\n\n[확인] 버튼을 누르면 PASS 앱 인증을 성공적으로 마친 것으로 시뮬레이션 합니다.');
+    
+    if (isConfirmed) {
+      setIsPhoneVerified(true);
+    }
   };
 
   const handleSendVerification = async () => {
@@ -133,6 +152,10 @@ export default function MuseumLobby() {
       alert('이메일 인증을 먼저 완료해주세요.');
       return;
     }
+    if (!isPhoneVerified) {
+      alert('휴대폰 인증을 먼저 완료해주세요.');
+      return;
+    }
 
     // 비밀번호 유효성 검사 (8자 이상, 특수문자 포함)
     const passwordRegex = /^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
@@ -149,6 +172,7 @@ export default function MuseumLobby() {
           email,
           password,
           name,
+          phone,
           height_cm: parseFloat(height)
         })
       });
@@ -207,135 +231,158 @@ export default function MuseumLobby() {
       <div className="relative w-[65%] h-full flex">
         <motion.div
           animate={isAuthenticated ? { x: '-100%' } : { x: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-white shadow-2xl flex flex-col items-center justify-center z-20 origin-left"
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          className="w-1/2 h-full bg-[#1a1a1a] border-r border-gray-800 shadow-2xl flex items-center justify-end z-10"
         >
-          <div className="w-3/4 max-w-md">
-            <h1 className="text-6xl font-black mb-2 tracking-tighter text-black">ArtMart</h1>
-            <p className="text-lg text-gray-500 font-medium mb-12 tracking-wide">예술품 위탁 판매의 새로운 기준</p>
-            
-            <div className="space-y-6">
-              <AnimatePresence mode="wait">
-                {mode === 'LOGIN' && (
-                  <motion.form 
-                    key="login"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    onSubmit={handleLoginSubmit}
-                    className="space-y-4"
-                  >
+          <div className="w-4 h-32 bg-gray-600 rounded-l-md mr-2"></div>
+        </motion.div>
+        
+        <motion.div
+          animate={isAuthenticated ? { x: '100%' } : { x: 0 }}
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          className="w-1/2 h-full bg-[#1a1a1a] border-l border-gray-800 shadow-2xl flex items-center justify-start z-10"
+        >
+          <div className="w-4 h-32 bg-gray-600 rounded-r-md ml-2"></div>
+        </motion.div>
+        <div className="absolute inset-0 bg-white flex flex-col items-center justify-center">
+          <h2 className="text-4xl font-light text-gray-800 tracking-widest">ARTMART GALLERY</h2>
+        </div>
+      </div>
+
+      <div className="w-[35%] h-full bg-gray-100 flex items-center justify-center p-8 z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] overflow-y-auto">
+        <AnimatePresence mode="wait">
+          {!isAuthenticated && (
+            <motion.div
+              key={mode}
+              initial={{ scale: 0.9, opacity: 0, x: 20 }}
+              animate={{ scale: 1, opacity: 1, x: 0 }}
+              exit={{ scale: 0.9, opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-8 my-auto"
+            >
+              {mode === 'LOGIN' && (
+                <>
+                  <h2 className="text-2xl font-bold mb-8 text-center text-gray-900">도슨트 키오스크</h2>
+                  <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">이메일</label>
-                      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1 w-full border-b-2 border-gray-200 focus:border-black outline-none py-2 transition-colors text-black" />
                     </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
+                      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="mt-1 w-full border-b-2 border-gray-200 focus:border-black outline-none py-2 transition-colors text-black" />
+                    </div>
+                    <button type="submit" className="w-full py-4 mt-4 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
+                      로그인 진행
+                    </button>
+                  </form>
+                  <div className="mt-6 text-center">
+                    <button onClick={() => setMode('SIGNUP')} className="text-sm text-gray-500 hover:text-black font-semibold transition-colors">
+                      처음 오셨나요? 회원가입하기
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {mode === 'LOGIN_OTP' && (
+                <>
+                  <h2 className="text-2xl font-bold mb-4 text-center text-gray-900">2단계 인증</h2>
+                  <p className="text-sm text-gray-500 text-center mb-6">안전한 로그인을 위해 구글 OTP(Authenticator) 앱의 6자리 코드를 입력해주세요.</p>
+                  <form onSubmit={handleOtpSubmit} className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 text-center">OTP 코드</label>
+                      <input type="text" maxLength={6} required className="mt-2 w-full text-center text-2xl tracking-widest border-b-2 border-gray-300 focus:border-black outline-none py-2 transition-colors text-black font-mono" placeholder="000000" />
+                    </div>
+                    <button type="submit" className="w-full py-4 mt-4 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
+                      인증 및 입장하기
+                    </button>
+                  </form>
+                  <div className="mt-6 text-center">
+                    <button onClick={() => setMode('LOGIN')} className="text-sm text-gray-500 hover:text-black font-semibold transition-colors">
+                      뒤로 가기
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {mode === 'SIGNUP' && (
+                <>
+                  <h2 className="text-2xl font-bold mb-6 text-center text-gray-900">새로운 관람객 등록</h2>
+                  <form onSubmit={handleSignupSubmit} className="space-y-4">
+                    {/* 이름 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">이름</label>
+                      <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                    </div>
+
+                    {/* 이메일 및 인증 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">이메일</label>
+                      <div className="flex gap-2 mt-1">
+                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isEmailVerified} required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
+                        <button 
+                          type="button" 
+                          onClick={handleSendVerification}
+                          disabled={isEmailVerified || isSendingEmail}
+                          className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
+                        >
+                          {isSendingEmail ? '발송중...' : isEmailSent ? '재전송' : '인증요청'}
+                        </button>
+                      </div>
+                      {isEmailSent && !isEmailVerified && (
+                        <div className="mt-2 flex gap-2">
+                          <input type="text" value={verifyCode} onChange={(e) => setVerifyCode(e.target.value)} placeholder="인증번호 6자리" className="flex-1 text-sm border-b-2 border-green-400 focus:border-green-600 outline-none py-1 text-black" />
+                          <button type="button" onClick={handleVerifyCode} className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-md hover:bg-green-600 transition-colors">확인</button>
+                        </div>
+                      )}
+                      {isEmailVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ 이메일 인증이 완료되었습니다.</p>}
+                    </div>
+
+                    {/* 비밀번호 */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
                     </div>
-                    <div className="pt-4 space-y-3">
-                      <button type="submit" className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
-                        갤러리 입장
-                      </button>
-                      <button type="button" onClick={() => setMode('SIGNUP')} className="w-full py-3 bg-white text-black font-bold rounded-lg border-2 border-black hover:bg-gray-50 transition-colors">
-                        새 관람객 등록 (발권)
-                      </button>
-                    </div>
-                  </motion.form>
-                )}
 
-                {mode === 'LOGIN_OTP' && (
-                  <motion.form 
-                    key="otp"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    onSubmit={handleOtpSubmit}
-                    className="space-y-4 text-center"
-                  >
-                    <p className="text-sm font-semibold text-gray-700 mb-4">보안을 위해 구글 OTP 6자리를 입력해주세요.</p>
-                    <div className="flex justify-center gap-2 mb-6">
-                      {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <input key={i} type="text" maxLength={1} className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-200 rounded-lg focus:border-black outline-none text-black" />
-                      ))}
-                    </div>
-                    <button type="submit" className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
-                      인증 완료 및 입장
-                    </button>
-                  </motion.form>
-                )}
-
-                {mode === 'SIGNUP' && (
-                  <motion.div 
-                    key="signup"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <button type="button" onClick={() => setMode('LOGIN')} className="text-sm font-bold text-gray-500 hover:text-black mb-6 flex items-center gap-1 transition-colors">
-                      ← 돌아가기
-                    </button>
-                    
-                    <h2 className="text-2xl font-bold mb-6 text-gray-900">새로운 관람객 등록</h2>
-                    <form onSubmit={handleSignupSubmit} className="space-y-4">
-                      {/* 이름 */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700">이름</label>
-                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
-                      </div>
-
-                      {/* 이메일 및 인증 */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700">이메일</label>
-                        <div className="flex gap-2 mt-1">
-                          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isEmailVerified} required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
-                          <button 
-                            type="button" 
-                            onClick={handleSendVerification}
-                            disabled={isEmailVerified || isSendingEmail}
-                            className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
-                          >
-                            {isSendingEmail ? '발송중...' : isEmailSent ? '재전송' : '인증요청'}
-                          </button>
-                        </div>
-                        {isEmailSent && !isEmailVerified && (
-                          <div className="mt-2 flex gap-2">
-                            <input type="text" value={verifyCode} onChange={(e) => setVerifyCode(e.target.value)} placeholder="인증번호 6자리" className="flex-1 text-sm border-b-2 border-green-400 focus:border-green-600 outline-none py-1 text-black" />
-                            <button type="button" onClick={handleVerifyCode} className="px-3 py-1 bg-green-500 text-white text-sm font-bold rounded-md hover:bg-green-600 transition-colors">확인</button>
-                          </div>
-                        )}
-                        {isEmailVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ 이메일 인증이 완료되었습니다.</p>}
-                      </div>
-
-                      {/* 비밀번호 */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
-                      </div>
-
-                      {/* 신장 복구 */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700">신장 (height_cm)</label>
-                        <input type="number" step="0.1" value={height} onChange={(e) => setHeight(e.target.value)} required placeholder="예: 175.5" className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
-                      </div>
-                      
-                      <div className="pt-4">
-                        <button type="submit" disabled={!isEmailVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
-                          회원가입 및 발권
+                    {/* 휴대폰 번호 및 PASS 인증 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">휴대폰 번호 (PASS 인증)</label>
+                      <div className="flex gap-2 mt-1">
+                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isPhoneVerified} placeholder="010-0000-0000" required className="flex-1 border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black disabled:bg-gray-50 disabled:text-gray-400" />
+                        <button 
+                          type="button" 
+                          onClick={handlePassVerification}
+                          disabled={isPhoneVerified}
+                          className="px-3 py-1 bg-gray-200 text-sm font-semibold rounded-md hover:bg-gray-300 text-black transition-colors disabled:opacity-50"
+                        >
+                          {isPhoneVerified ? '인증완료' : '본인인증'}
                         </button>
                       </div>
-                    </form>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </motion.div>
+                      {isPhoneVerified && <p className="text-xs text-green-600 font-bold mt-1">✓ PASS 본인인증이 완료되었습니다.</p>}
+                    </div>
 
-        {/* 오른쪽 이미지 배경 (기존의 우측 패널 느낌) */}
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-[url('https://images.unsplash.com/photo-1577720580479-7d839d829c73?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center z-10 hidden md:block">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
-        </div>
+                    {/* 신장 복구 */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700">신장 (height_cm)</label>
+                      <input type="number" step="0.1" value={height} onChange={(e) => setHeight(e.target.value)} required placeholder="예: 175.5" className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                    </div>
+                    
+                    <div className="pt-4">
+                      <button type="submit" disabled={!isEmailVerified || !isPhoneVerified} className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50">
+                        회원가입 및 발권
+                      </button>
+                    </div>
+                  </form>
+                  <div className="mt-4 text-center">
+                    <button onClick={() => setMode('LOGIN')} className="text-sm text-gray-500 hover:text-black font-semibold transition-colors">
+                      이미 계정이 있으신가요? 로그인
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

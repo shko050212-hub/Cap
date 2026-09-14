@@ -6,7 +6,7 @@ import { db } from '@/lib/db';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, name, height_cm, role, bank_name, bank_account } = body;
+    const { email, password, name, phone, height_cm, role, bank_name, bank_account } = body;
 
     // 빈 값 체크
     if (!email || !password || !name || !height_cm) {
@@ -32,9 +32,9 @@ export async function POST(request: Request) {
 
     // DB Insert (PostgreSQL)
     const result = await db.query(
-      `INSERT INTO users (email, password_hash, name, phone, height_cm, role, bank_name, bank_account) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, email, name, role`,
-      [email, password_hash, name, null, height_cm, role || 'BUYER', bank_name || null, bank_account || null]
+      `INSERT INTO users (email, password_hash, name, phone, role, height_cm, bank_name, bank_account)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, email, role, height_cm`,
+      [email, password_hash, name, phone, role || 'BUYER', userHeight, bank_name, bank_account]
     );
 
     const user = result.rows[0];

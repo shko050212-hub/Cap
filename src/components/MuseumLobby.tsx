@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function MuseumLobby() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isReturningUser, setIsReturningUser] = useState(false);
-  const [mode, setMode] = useState<'LOGIN' | 'LOGIN_OTP' | 'SIGNUP'>('LOGIN');
+  const [mode, setMode] = useState<'LOGIN' | 'LOGIN_OTP' | 'SIGNUP' | 'SIGNUP_OTP_QR'>('LOGIN');
   
   const router = useRouter();
 
@@ -17,6 +17,18 @@ export default function MuseumLobby() {
   const [name, setName] = useState('');
   const [height, setHeight] = useState('');
   const [userRole, setUserRole] = useState('BUYER');
+
+  // Email Verification States
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  // OTP States
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [tempToken, setTempToken] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [otpToken, setOtpToken] = useState('');
 
   // Email Verification States
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -101,28 +113,22 @@ export default function MuseumLobby() {
       const data = await res.json();
       
       if (res.ok) {
-        // Save token & role temporarily (in real app, save after OTP)
+        if (data.requireOtp) {
+          setLoginEmail(email);
+          setMode('LOGIN_OTP');
+          return;
+        }
+        // Admin bypass
         localStorage.setItem('token', data.token);
-        setUserRole(data.user.role);
-        setMode('LOGIN_OTP'); // Proceed to OTP
+        setIsAuthenticated(true);
+        setTimeout(() => {
+          router.push(data.role === 'ADMIN' ? '/admin' : '/gallery');
+        }, 1500);
       } else {
         alert(data.error || '로그인 실패');
       }
     } catch (err) {
       console.error(err);
-      alert('서버 오류가 발생했습니다.');
-    }
-  };
-
-  const handleOtpSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsAuthenticated(true);
-    // Role에 따라 어드민 대시보드 혹은 일반 갤러리로 이동
-    setTimeout(() => { 
-      if (userRole === 'ADMIN') {
-        router.push('/admin'); // 어드민 페이지로 이동 (향후 생성)
-      } else {
-        router.push('/gallery'); 
       }
     }, 1500);
   };
@@ -155,10 +161,10 @@ export default function MuseumLobby() {
       const data = await res.json();
       
       if (res.ok) {
-        localStorage.setItem('token', data.token);
-        alert('회원가입이 완료되었습니다!');
-        setIsAuthenticated(true);
-        setTimeout(() => { router.push('/gallery'); }, 1500);
+        setTempToken(data.token);
+        setQrCodeUrl(data.qrCodeUrl);
+        alert('회원가입이 거의 완료되었습니다! 마지막으로 OTP를 등록해주세요.');
+        setMode('SIGNUP_OTP_QR');
       } else {
         alert(data.error || '회원가입 실패');
       }
@@ -261,24 +267,67 @@ export default function MuseumLobby() {
               )}
 
               {mode === 'LOGIN_OTP' && (
-                <>
-                  <h2 className="text-2xl font-bold mb-4 text-center text-gray-900">2단계 인증</h2>
-                  <p className="text-sm text-gray-500 text-center mb-6">안전한 로그인을 위해 구글 OTP(Authenticator) 앱의 6자리 코드를 입력해주세요.</p>
-                  <form onSubmit={handleOtpSubmit} className="space-y-5">
+                <motion.div
+                  key="login_otp"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="w-full max-w-sm"
+                >
+                  <div className="mb-8">
+                    <button onClick={() => setMode('LOGIN')} className="text-gray-400 hover:text-black mb-4 flex items-center transition-colors">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                      뒤로가기
+                    </button>
+                    <h2 className="text-2xl font-bold mb-2 text-gray-900">2단계 인증</h2>
+                    <p className="text-sm text-gray-500">Google Authenticator 앱의 6자리 코드를 입력해주세요.</p>
+                  </div>
+                  
+                  <form onSubmit={handleOtpSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 text-center">OTP 코드</label>
-                      <input type="text" maxLength={6} required className="mt-2 w-full text-center text-2xl tracking-widest border-b-2 border-gray-300 focus:border-black outline-none py-2 transition-colors text-black font-mono" placeholder="000000" />
+                      <input 
+                        type="text" 
+                        maxLength={6} 
+                        value={otpToken}
+                        onChange={(e) => setOtpToken(e.target.value)}
+                        placeholder="000000" 
+                        required 
+                        className="w-full text-center text-3xl tracking-[0.5em] border-b-2 border-gray-200 focus:border-black outline-none py-2 transition-colors text-black" 
+                      />
                     </div>
-                    <button type="submit" className="w-full py-4 mt-4 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
-                      인증 및 입장하기
+                    <button type="submit" className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors">
+                      인증 완료
                     </button>
                   </form>
-                  <div className="mt-6 text-center">
-                    <button onClick={() => setMode('LOGIN')} className="text-sm text-gray-500 hover:text-black font-semibold transition-colors">
-                      뒤로 가기
-                    </button>
+                </motion.div>
+              )}
+
+              {mode === 'SIGNUP_OTP_QR' && (
+                <motion.div
+                  key="signup_otp_qr"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="w-full max-w-sm flex flex-col items-center"
+                >
+                  <h2 className="text-2xl font-bold mb-2 text-gray-900 text-center">Google OTP 등록</h2>
+                  <p className="text-sm text-gray-500 mb-6 text-center">보안을 위해 <b>Google Authenticator</b> 앱을 열고 아래 QR 코드를 스캔해주세요.</p>
+                  
+                  <div className="bg-white p-4 rounded-xl shadow-md border mb-8">
+                    {qrCodeUrl && <img src={qrCodeUrl} alt="OTP QR Code" className="w-48 h-48" />}
                   </div>
-                </>
+
+                  <button 
+                    onClick={() => {
+                      localStorage.setItem('token', tempToken);
+                      setIsAuthenticated(true);
+                      setTimeout(() => { router.push('/gallery'); }, 1500);
+                    }}
+                    className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors"
+                  >
+                    스캔 완료 (갤러리 입장)
+                  </button>
+                </motion.div>
               )}
 
               {mode === 'SIGNUP' && (

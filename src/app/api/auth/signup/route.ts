@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { db } from '@/lib/db';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 
 export async function POST(request: Request) {
   try {
@@ -27,27 +29,38 @@ export async function POST(request: Request) {
 
     const password_hash = await bcrypt.hash(password, 10);
     
-    // DB 저장 (phone 컬럼 생략)
+    // Google OTP Secret 생성
+    const otpSecret = speakeasy.generateSecret({ name: `ArtMart (${email})` });
+
+    // DB 저장 (otp_secret 포함)
     const insertQuery = `
-      INSERT INTO users (email, password_hash, name, role, height_cm, bank_name, bank_account)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO users (email, password_hash, name, role, height_cm, bank_name, bank_account, otp_secret)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id, email, role, height_cm
     `;
-    const values = [email, password_hash, name, role || 'BUYER', height_cm || 170.0, bank_name || null, bank_account || null];
+    const values = [email, password_hash, name, role || 'BUYER', height_cm || 170.0, bank_name || null, bank_account || null, otpSecret.base32];
 
     const result = await db.query(insertQuery, values);
     const user = result.rows[0];
 
+    // OTP QR Code 이미지 URL 생성
+    const qrCodeUrl = await QRCode.toDataURL(otpSecret.otpauth_url || '');
+
     // JWT 발급
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role, height_cm: user.height_cm },
-      process.env.JWT_SECRET || 'artmart-super-secret-key',
-      { expiresIn: '24h' }
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'fallback-secret',
+      { expiresIn: '1d' }
     );
 
-    return NextResponse.json({ message: '회원가입 및 발권 완료', token, user }, { status: 201 });
+    return NextResponse.json({ 
+      message: '회원가입 성공', 
+      token, 
+      user,
+      qrCodeUrl // 클라이언트에게 QR 코드 전달
+    }, { status: 201 });
   } catch (error) {
-    console.error('Signup Error:', error);
-    return NextResponse.json({ error: '회원가입 실패' }, { status: 500 });
+    console.error('Signup error:', error);
+    return NextResponse.json({ error: '회원가입 처리 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

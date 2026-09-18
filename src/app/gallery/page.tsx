@@ -23,7 +23,7 @@ export default function GalleryPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 2, ease: "easeOut" }}
-        className="relative z-10 w-[350px] h-[500px] sm:w-[450px] sm:h-[600px] shadow-[0_0_60px_rgba(255,255,255,0.15)] bg-[#1a1a1a] p-4"
+        className="relative z-10 w-[calc(100vw-100px)] max-w-[450px] max-h-[calc(100vh-100px)] aspect-[3/4] shadow-[0_0_80px_rgba(255,255,255,0.12)] bg-[#1a1a1a] p-4 sm:p-6 mx-auto my-auto"
       >
         <div className="relative w-full h-full border border-gray-800 bg-gray-900 overflow-hidden group">
           {/* Temporary Artwork Image */}

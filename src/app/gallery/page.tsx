@@ -46,19 +46,17 @@ export default function GalleryPage() {
         </div>
       </motion.div>
 
-      {/* 우측 하단 콧수염 도슨트 아이콘 */}
+      {/* 우측 하단 도슨트 오디오 가이드 버튼 (Inline SVG) */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1.5, duration: 0.8, type: 'spring' }}
-        className="absolute bottom-8 right-8 w-20 h-20 z-50 cursor-pointer hover:scale-110 transition-transform"
+        className="absolute bottom-8 right-8 z-50 cursor-pointer hover:scale-110 transition-transform bg-white/90 backdrop-blur rounded-full p-4 shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 group"
       >
-        <img 
-          src="/docent.png" 
-          alt="Docent" 
-          className="w-full h-full object-contain drop-shadow-md"
-          style={{ mixBlendMode: 'multiply' }}
-        />
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800 group-hover:text-black">
+          <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"></path>
+        </svg>
+        <span className="font-bold text-gray-800 pr-1 text-sm hidden sm:block">Docent</span>
       </motion.div>
     </motion.div>
   );

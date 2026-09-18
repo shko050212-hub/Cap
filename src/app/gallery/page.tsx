@@ -46,19 +46,16 @@ export default function GalleryPage() {
         </div>
       </motion.div>
 
-      {/* 우측 하단 콧수염 도슨트 아이콘 (12번 원본 이미지 투명화 적용) */}
+      {/* 우측 하단 콧수염 도슨트 아이콘 (유저 제공 SVG) */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1.5, duration: 0.8, type: 'spring' }}
-        className="absolute bottom-8 right-8 w-20 h-20 z-50 cursor-pointer hover:scale-110 transition-transform"
+        className="absolute bottom-8 right-8 w-24 h-24 z-50 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center p-2 text-[#111] hover:text-[#333]"
       >
-        <img 
-          src="/docent.png" 
-          alt="Docent" 
-          className="w-full h-full object-contain"
-          style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }}
-        />
+        <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 20 C42 12 30 10 20 16 C16 18 14 24 18 26 C22 28 26 22 32 22 C40 22 46 28 50 30 C54 28 60 22 68 22 C74 22 78 28 82 26 C86 24 84 18 80 16 C70 10 58 12 50 20 Z" />
+        </svg>
       </motion.div>
     </motion.div>
   );

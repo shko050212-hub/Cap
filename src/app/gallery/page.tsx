@@ -46,7 +46,7 @@ export default function GalleryPage() {
         </div>
       </motion.div>
 
-      {/* 우측 하단 콧수염 도슨트 아이콘 (mix-blend-mode: multiply로 흰색 배경 제거) */}
+      {/* 우측 하단 콧수염 도슨트 아이콘 */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -54,7 +54,7 @@ export default function GalleryPage() {
         className="absolute bottom-8 right-8 w-20 h-20 z-50 cursor-pointer hover:scale-110 transition-transform"
       >
         <img 
-          src="/docent.jfif" 
+          src="/docent.png" 
           alt="Docent" 
           className="w-full h-full object-contain drop-shadow-md"
           style={{ mixBlendMode: 'multiply' }}

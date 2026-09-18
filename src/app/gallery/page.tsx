@@ -56,8 +56,7 @@ export default function GalleryPage() {
         <img 
           src="/docent.png" 
           alt="Docent" 
-          className="w-full h-full object-contain"
-          style={{ mixBlendMode: 'multiply', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))' }}
+          className="w-full h-full object-contain mix-blend-multiply"
         />
       </motion.div>
     </motion.div>

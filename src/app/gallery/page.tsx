@@ -46,16 +46,18 @@ export default function GalleryPage() {
         </div>
       </motion.div>
 
-      {/* 우측 하단 콧수염 도슨트 아이콘 (유저 제공 SVG) */}
+      {/* 우측 하단 도슨트 오디오 가이드 버튼 (확성기 모양) */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1.5, duration: 0.8, type: 'spring' }}
-        className="absolute bottom-8 right-8 w-24 h-24 z-50 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center p-2 text-[#111] hover:text-[#333]"
+        className="absolute bottom-8 right-8 z-50 cursor-pointer hover:scale-110 transition-transform bg-white/90 backdrop-blur rounded-full px-5 py-3 shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 group"
       >
-        <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M50 20 C42 12 30 10 20 16 C16 18 14 24 18 26 C22 28 26 22 32 22 C40 22 46 28 50 30 C54 28 60 22 68 22 C74 22 78 28 82 26 C86 24 84 18 80 16 C70 10 58 12 50 20 Z" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800 group-hover:text-black">
+          <path d="m3 11 18-5v12L3 14v-3z"></path>
+          <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
         </svg>
+        <span className="font-bold text-gray-800 text-sm tracking-wide hidden sm:block">Docent</span>
       </motion.div>
     </motion.div>
   );

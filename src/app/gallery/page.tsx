@@ -25,6 +25,7 @@ export default function GalleryPage() {
   // 입찰 상태 관리
   const [bidStep, setBidStep] = useState<'initial' | 'input' | 'complete'>('initial');
   const [bidAmount, setBidAmount] = useState('');
+  const [bidError, setBidError] = useState('');
 
   const currentArtwork = artworks[currentIndex];
 
@@ -39,8 +40,9 @@ export default function GalleryPage() {
     setCurrentIndex(nextIndex);
     setIsScaleView(false);
     setIsDocentOpen(false);
-    setBidStep('initial'); // 상태 초기화
+    setBidStep('initial');
     setBidAmount('');
+    setBidError('');
   };
 
   const handlePrev = () => {
@@ -54,8 +56,9 @@ export default function GalleryPage() {
       setCurrentIndex(prevIndex);
       setIsScaleView(false);
       setIsDocentOpen(false);
-      setBidStep('initial'); // 상태 초기화
+      setBidStep('initial');
       setBidAmount('');
+      setBidError('');
     }
   };
 
@@ -68,7 +71,17 @@ export default function GalleryPage() {
     setTimeout(() => {
       setBidStep('initial');
       setBidAmount('');
+      setBidError('');
     }, 300);
+  };
+  
+  const handleBidSubmit = () => {
+    if (Number(bidAmount) < currentArtwork.price) {
+      setBidError('이 금액으로는 입찰이 불가합니다.');
+    } else {
+      setBidError('');
+      setBidStep('complete');
+    }
   };
 
   const variants = {
@@ -111,10 +124,8 @@ export default function GalleryPage() {
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900"><path d="m9 18 6-6-6-6"/></svg>
       </button>
 
-      {/* 작품 슬라이더 영역 */}
-      <motion.div 
-        animate={{ scale: isScaleView ? 0.6 : 1, y: isScaleView ? -50 : 0 }} 
-        transition={{ duration: 0.8, type: 'spring' }}
+      {/* 작품 슬라이더 영역 (크기/위치 고정) */}
+      <div 
         className="relative z-10 w-[calc(100vw-120px)] max-w-[400px] h-[calc(100vh-160px)] aspect-[3/4] mx-auto my-auto flex items-center justify-center"
       >
         <AnimatePresence initial={false} custom={direction}>
@@ -170,7 +181,7 @@ export default function GalleryPage() {
             )}
           </motion.div>
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       {/* 하단 좌측: 찜하기 및 구매 버튼 */}
       <div className="absolute bottom-8 left-8 z-50 flex gap-4">
@@ -243,21 +254,24 @@ export default function GalleryPage() {
                     )}
                     
                     {bidStep === 'input' && (
-                      <div className="mt-4 flex gap-2">
-                        <input 
-                          type="number" 
-                          placeholder={`최소 ₩${currentArtwork.price.toLocaleString()} 이상`} 
-                          value={bidAmount}
-                          onChange={(e) => setBidAmount(e.target.value)}
-                          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                        />
-                        <button 
-                          onClick={() => setBidStep('complete')} 
-                          disabled={!bidAmount}
-                          className="bg-black text-white px-5 py-2 rounded-lg font-bold hover:bg-gray-800 disabled:opacity-50"
-                        >
-                          확인
-                        </button>
+                      <div className="mt-4 flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <input 
+                            type="number" 
+                            placeholder={`최소 ₩${currentArtwork.price.toLocaleString()} 이상`} 
+                            value={bidAmount}
+                            onChange={(e) => setBidAmount(e.target.value)}
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                          />
+                          <button 
+                            onClick={handleBidSubmit} 
+                            disabled={!bidAmount}
+                            className="bg-black text-white px-5 py-2 rounded-lg font-bold hover:bg-gray-800 disabled:opacity-50"
+                          >
+                            확인
+                          </button>
+                        </div>
+                        {bidError && <p className="text-red-500 text-xs font-bold">{bidError}</p>}
                       </div>
                     )}
                     

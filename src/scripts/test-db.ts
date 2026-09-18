@@ -1,3 +1,5 @@
+import { config } from 'dotenv';
+config({ path: '.env' });
 import { db } from '../lib/db';
 
 async function testConnection() {

@@ -130,9 +130,17 @@ export default function GalleryPage() {
                 animate={{ opacity: 1 }}
                 className="absolute inset-0 z-20 flex justify-center pointer-events-none"
               >
-                {/* 그림 중앙에 머리가 오도록 위치 조정: top을 50%로 설정하고 translate-y를 적절히 조절 */}
-                <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-[15%] w-[120px]">
-                  <img src="/human_scale.png" alt="Human Scale" className="w-full drop-shadow-2xl opacity-90" />
+                {/* 그림 중앙에 머리가 오도록 위치 조정 및 키 비율 계산 (사용자 키 180cm 기준) */}
+                <div 
+                  className="absolute left-1/2"
+                  style={{ 
+                    // 작품 세로 길이에 대비한 180cm 사용자의 상대적 픽셀 높이
+                    height: `${(180 / currentArtwork.height) * 100}%`,
+                    top: '50%', // 그림의 세로 정중앙
+                    transform: 'translate(-50%, -12%)' // 눈높이를 그림 중앙에 맞추기 위해 약간 위로 보정
+                  }}
+                >
+                  <img src="/human_scale.png" alt="Human Scale" className="h-full w-auto drop-shadow-2xl opacity-90 object-contain" />
                 </div>
                 
                 {/* 사이즈 정보 태그 */}

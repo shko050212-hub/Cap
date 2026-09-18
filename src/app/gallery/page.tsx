@@ -21,6 +21,10 @@ export default function GalleryPage() {
   const [liked, setLiked] = useState<Record<number, boolean>>({});
   const [isScaleView, setIsScaleView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  
+  // 입찰 상태 관리
+  const [bidStep, setBidStep] = useState<'initial' | 'input' | 'complete'>('initial');
+  const [bidAmount, setBidAmount] = useState('');
 
   const currentArtwork = artworks[currentIndex];
 
@@ -35,6 +39,8 @@ export default function GalleryPage() {
     setCurrentIndex(nextIndex);
     setIsScaleView(false);
     setIsDocentOpen(false);
+    setBidStep('initial'); // 상태 초기화
+    setBidAmount('');
   };
 
   const handlePrev = () => {
@@ -48,11 +54,21 @@ export default function GalleryPage() {
       setCurrentIndex(prevIndex);
       setIsScaleView(false);
       setIsDocentOpen(false);
+      setBidStep('initial'); // 상태 초기화
+      setBidAmount('');
     }
   };
 
   const toggleLike = () => {
     setLiked(prev => ({ ...prev, [currentArtwork.id]: !prev[currentArtwork.id] }));
+  };
+
+  const closeCart = () => {
+    setIsCartOpen(false);
+    setTimeout(() => {
+      setBidStep('initial');
+      setBidAmount('');
+    }, 300);
   };
 
   const variants = {
@@ -197,7 +213,7 @@ export default function GalleryPage() {
             >
               <div className="bg-gray-50 border-b px-6 py-4 flex justify-between items-center">
                 <h2 className="font-bold text-lg">{currentArtwork.saleType === 'auction' ? '경매 입찰' : '작품 구매'}</h2>
-                <button onClick={() => setIsCartOpen(false)} className="text-gray-500 hover:text-black">
+                <button onClick={closeCart} className="text-gray-500 hover:text-black">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
               </div>
@@ -219,9 +235,37 @@ export default function GalleryPage() {
                       <li>새로운 호가 입력 시 1시간의 유예 시간이 주어집니다.</li>
                       <li>1시간 동안 추가 호가가 없으면 최종 낙찰됩니다.</li>
                     </ul>
-                    <button className="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
-                      입찰가 입력하기
-                    </button>
+                    
+                    {bidStep === 'initial' && (
+                      <button onClick={() => setBidStep('input')} className="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
+                        입찰가 입력하기
+                      </button>
+                    )}
+                    
+                    {bidStep === 'input' && (
+                      <div className="mt-4 flex gap-2">
+                        <input 
+                          type="number" 
+                          placeholder={`최소 ₩${currentArtwork.price.toLocaleString()} 이상`} 
+                          value={bidAmount}
+                          onChange={(e) => setBidAmount(e.target.value)}
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                        />
+                        <button 
+                          onClick={() => setBidStep('complete')} 
+                          disabled={!bidAmount}
+                          className="bg-black text-white px-5 py-2 rounded-lg font-bold hover:bg-gray-800 disabled:opacity-50"
+                        >
+                          확인
+                        </button>
+                      </div>
+                    )}
+                    
+                    {bidStep === 'complete' && (
+                      <div className="mt-4 bg-green-100 border border-green-200 text-green-800 p-3 rounded-lg text-center font-bold">
+                        🎉 입찰이 완료되었습니다!
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
@@ -230,9 +274,18 @@ export default function GalleryPage() {
                       <li>작가가 설정한 가격으로 즉시 구매가 가능합니다.</li>
                       <li>결제 완료 시 작품 소유권이 이전됩니다.</li>
                     </ul>
-                    <button className="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
-                      ₩{currentArtwork.price.toLocaleString()} 결제하기
-                    </button>
+                    
+                    {bidStep === 'initial' && (
+                      <button onClick={() => setBidStep('complete')} className="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
+                        ₩{currentArtwork.price.toLocaleString()} 결제하기
+                      </button>
+                    )}
+                    
+                    {bidStep === 'complete' && (
+                      <div className="mt-4 bg-green-100 border border-green-200 text-green-800 p-3 rounded-lg text-center font-bold">
+                        🎉 결제가 완료되었습니다!
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -124,9 +124,9 @@ export default function GalleryPage() {
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900"><path d="m9 18 6-6-6-6"/></svg>
       </button>
 
-      {/* 작품 슬라이더 영역 (크기/위치 고정) */}
+      {/* 작품 슬라이더 영역 (고유 비율 강제) */}
       <div 
-        className="relative z-10 w-[calc(100vw-120px)] max-w-[400px] h-[calc(100vh-160px)] aspect-[3/4] mx-auto my-auto flex items-center justify-center"
+        className="relative z-10 w-full h-[70vh] max-h-[800px] mx-auto flex items-center justify-center"
       >
         <AnimatePresence initial={false} custom={direction}>
           <motion.div
@@ -137,11 +137,15 @@ export default function GalleryPage() {
             animate="center"
             exit="exit"
             transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
-            className="absolute w-full h-full flex justify-center items-center"
+            className="absolute flex justify-center items-center"
+            style={{ 
+              height: '100%',
+              aspectRatio: `${currentArtwork.width} / ${currentArtwork.height}` 
+            }}
           >
-            <div className="relative w-full h-full bg-[#fafafa] p-6 sm:p-10 shadow-[0_40px_70px_rgba(0,0,0,0.55),0_15px_20px_rgba(0,0,0,0.3)] border-[14px] border-[#111]">
-              <div className="relative w-full h-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)] bg-gray-200">
-                <img src={currentArtwork.src} alt={currentArtwork.title} className="w-full h-full object-cover" />
+            <div className="relative w-full h-full bg-[#fafafa] p-4 sm:p-8 shadow-[0_40px_70px_rgba(0,0,0,0.55),0_15px_20px_rgba(0,0,0,0.3)] border-[10px] sm:border-[14px] border-[#111]">
+              <div className="relative w-full h-full shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)] bg-white">
+                <img src={currentArtwork.src} alt={currentArtwork.title} className="w-full h-full object-contain" />
               </div>
             </div>
             

@@ -1,8 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function GalleryPage() {
+  const [isDocentOpen, setIsDocentOpen] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -46,11 +49,40 @@ export default function GalleryPage() {
         </div>
       </motion.div>
 
+      {/* 도슨트 설명 말풍선 */}
+      <AnimatePresence>
+        {isDocentOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="absolute bottom-24 right-8 z-40 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.4)] w-80 border border-gray-100"
+          >
+            <div className="flex items-center mb-4 pb-3 border-b border-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800 mr-2">
+                <path d="m3 11 18-5v12L3 14v-3z"></path>
+                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+              </svg>
+              <h3 className="font-bold text-gray-900">오디오 도슨트</h3>
+            </div>
+            <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+              <p><span className="font-semibold text-black">작가:</span> 누구이고</p>
+              <p><span className="font-semibold text-black">출생:</span> 몇 년생이고</p>
+              <p className="pt-2"><span className="font-semibold text-black">작품 설명:</span><br/>본 작품 설명 (작가가 작품을 등록할 때 작성하게 됩니다)</p>
+            </div>
+            
+            {/* 말풍선 꼬리 */}
+            <div className="absolute -bottom-3 right-8 w-6 h-6 bg-white/95 rotate-45 border-r border-b border-gray-100"></div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 우측 하단 도슨트 오디오 가이드 버튼 (확성기 모양) */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1.5, duration: 0.8, type: 'spring' }}
+        onClick={() => setIsDocentOpen(!isDocentOpen)}
         className="absolute bottom-8 right-8 z-50 cursor-pointer hover:scale-110 transition-transform bg-white/90 backdrop-blur rounded-full px-5 py-3 shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 group"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800 group-hover:text-black">

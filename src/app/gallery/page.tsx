@@ -45,6 +45,21 @@ export default function GalleryPage() {
           <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">Oil on Canvas</p>
         </div>
       </motion.div>
+
+      {/* 우측 하단 콧수염 도슨트 아이콘 (mix-blend-mode: multiply로 흰색 배경 제거) */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.5, duration: 0.8, type: 'spring' }}
+        className="absolute bottom-8 right-8 w-20 h-20 z-50 cursor-pointer hover:scale-110 transition-transform"
+      >
+        <img 
+          src="/docent.jfif" 
+          alt="Docent" 
+          className="w-full h-full object-contain drop-shadow-md"
+          style={{ mixBlendMode: 'multiply' }}
+        />
+      </motion.div>
     </motion.div>
   );
 }

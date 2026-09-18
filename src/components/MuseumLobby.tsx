@@ -37,8 +37,11 @@ export default function MuseumLobby() {
     if (token) {
       setIsReturningUser(true);
       setIsAuthenticated(true);
+      setTimeout(() => {
+        router.push('/gallery');
+      }, 2500);
     }
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -206,11 +209,12 @@ export default function MuseumLobby() {
         <motion.div
           initial={{ y: '-100vh', opacity: 0, scale: 0.8 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.1 }}
           transition={{ type: 'spring', bounce: 0.6, duration: 1.2 }}
           className="flex flex-col items-center justify-center"
         >
           <div className="w-16 h-16 rounded-full bg-black mb-4 shadow-xl"></div>
-          <h1 className="text-3xl font-bold tracking-tight text-black">다시 오셨군요, 갤러리에 착지했습니다.</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-black">다시 오셨군요 갤러리에 도착했습니다.</h1>
         </motion.div>
       </div>
     );

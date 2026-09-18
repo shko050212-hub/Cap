@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "mkdir -p certs && curl -o certs/global-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "test-db": "ts-node src/scripts/test-db.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

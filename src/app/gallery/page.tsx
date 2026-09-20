@@ -62,6 +62,7 @@ export default function GalleryPage() {
     saleType: 'sale' | 'auction';
   }
   const [myArtworks, setMyArtworks] = useState<MyArtwork[]>([]);
+  const [myTransactions, setMyTransactions] = useState<any[]>([]);
   
   // 프로필 정보 상태
   const [profileName, setProfileName] = useState('관람객 님');
@@ -102,6 +103,9 @@ export default function GalleryPage() {
               status: a.status,
               saleType: a.sale_type
             })));
+          }
+          if (data.transactions) {
+            setMyTransactions(data.transactions);
           }
         }
       } catch (err) {
@@ -261,14 +265,33 @@ export default function GalleryPage() {
           await fetch('/api/user/coins', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ amount: Number(bidAmount), action: 'subtract' })
+            body: JSON.stringify({ 
+              amount: Number(bidAmount), 
+              action: 'subtract',
+              artworkId: currentArtwork.id,
+              artworkTitle: currentArtwork.title,
+              artworkSrc: currentArtwork.src,
+              type: 'bid',
+              auctionEndTime: Date.now() + 10 * 60 * 1000
+            })
           });
         } catch (err) {
           console.error(err);
         }
       }
+      const auctionEnd = Date.now() + 10 * 60 * 1000;
+      setMyTransactions(prev => [{
+        id: Date.now(),
+        artwork_id: currentArtwork.id,
+        artwork_title: currentArtwork.title,
+        artwork_src: currentArtwork.src,
+        amount: Number(bidAmount),
+        type: 'bid',
+        auction_end_time: auctionEnd
+      }, ...prev]);
+      
       setUserCoins(prev => prev - Number(bidAmount));
-      setAuctionEndTimes(prev => ({ ...prev, [currentArtwork.id]: Date.now() + 10 * 60 * 1000 }));
+      setAuctionEndTimes(prev => ({ ...prev, [currentArtwork.id]: auctionEnd }));
       setBidError('');
       setBidStep('complete');
       alert('입찰이 완료되었습니다. 호가 금액만큼 코인이 사용 정지됩니다.');
@@ -530,12 +553,28 @@ export default function GalleryPage() {
                                   await fetch('/api/user/coins', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                                    body: JSON.stringify({ amount: currentArtwork.price, action: 'subtract' })
+                                    body: JSON.stringify({ 
+                                      amount: currentArtwork.price, 
+                                      action: 'subtract',
+                                      artworkId: currentArtwork.id,
+                                      artworkTitle: currentArtwork.title,
+                                      artworkSrc: currentArtwork.src,
+                                      type: 'buy'
+                                    })
                                   });
                                 } catch (err) {
                                   console.error(err);
                                 }
                               }
+                              setMyTransactions(prev => [{
+                                id: Date.now(),
+                                artwork_id: currentArtwork.id,
+                                artwork_title: currentArtwork.title,
+                                artwork_src: currentArtwork.src,
+                                amount: currentArtwork.price,
+                                type: 'buy',
+                                auction_end_time: null
+                              }, ...prev]);
                               setUserCoins(prev => prev - currentArtwork.price);
                               alert('구매가 완료되었습니다.');
                               setBidStep('complete');
@@ -759,8 +798,46 @@ export default function GalleryPage() {
                     )}
                     
                     {profileView === 'history' && (
-                      <div className="text-center py-10 text-gray-500">
-                        구매 및 경매 내역이 없습니다.
+                      <div className="space-y-4">
+                        {myTransactions.length > 0 ? (
+                          myTransactions.map(tx => {
+                            const isAuction = tx.type === 'bid';
+                            let timeLeftStr = '';
+                            if (isAuction && tx.auction_end_time) {
+                              const timeLeftMs = Number(tx.auction_end_time) - currentTime;
+                              if (timeLeftMs > 0) {
+                                const m = Math.floor(timeLeftMs / 60000);
+                                const s = Math.floor((timeLeftMs % 60000) / 1000);
+                                timeLeftStr = `남은 시간: ${m}분 ${s.toString().padStart(2, '0')}초`;
+                              } else {
+                                timeLeftStr = '경매 종료';
+                              }
+                            }
+                            return (
+                              <div key={tx.id} className="flex gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                                <img src={tx.artwork_src} className="w-16 h-16 object-cover rounded-lg" />
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-start">
+                                    <p className="font-bold text-gray-900">{tx.artwork_title}</p>
+                                    <span className={`text-xs font-bold px-2 py-1 rounded ${isAuction ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                      {isAuction ? '경매 입찰' : '일반 구매'}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm font-bold mt-1 text-black">
+                                    {isAuction ? '입찰가:' : '구매가:'} ₩{tx.amount.toLocaleString()}
+                                  </p>
+                                  {isAuction && (
+                                    <p className="text-xs font-bold text-red-500 mt-1">{timeLeftStr}</p>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-10 text-gray-500">
+                            구매 및 경매 내역이 없습니다.
+                          </div>
+                        )}
                       </div>
                     )}
 

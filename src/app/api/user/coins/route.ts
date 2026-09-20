@@ -18,8 +18,7 @@ export async function POST(request: Request) {
     const user = getUserFromHeader(request);
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { amount, action } = await request.json();
-    // action: 'add' or 'subtract'
+    const { amount, action, artworkId, artworkTitle, artworkSrc, type, auctionEndTime } = await request.json();
     
     let query = '';
     if (action === 'add') {
@@ -31,6 +30,14 @@ export async function POST(request: Request) {
     }
 
     const res = await db.query(query, [Number(amount), user.userId]);
+
+    // Transaction 기록
+    if (action === 'subtract' && artworkId) {
+      await db.query(
+        'INSERT INTO transactions (user_id, artwork_id, artwork_title, artwork_src, amount, type, auction_end_time) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [user.userId, artworkId, artworkTitle, artworkSrc, amount, type, auctionEndTime || null]
+      );
+    }
     
     return NextResponse.json({ message: 'Coins updated', coins: res.rows[0].coins });
   } catch (err) {

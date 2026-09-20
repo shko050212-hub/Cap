@@ -24,10 +24,12 @@ export async function GET(request: Request) {
     const userData = userRes.rows[0];
 
     const artworksRes = await db.query('SELECT * FROM artworks WHERE user_id = $1 ORDER BY id DESC', [user.userId]);
+    const transRes = await db.query('SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC', [user.userId]);
     
     return NextResponse.json({
       user: userData,
-      artworks: artworksRes.rows
+      artworks: artworksRes.rows,
+      transactions: transRes.rows
     });
   } catch (err) {
     console.error(err);

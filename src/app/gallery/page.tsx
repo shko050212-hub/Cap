@@ -111,7 +111,7 @@ export default function GalleryPage() {
       setProfileView(null);
       setTimeout(() => {
         setIsProfileOpen(false);
-      }, 300);
+      }, 500);
     } else {
       setIsProfileOpen(false);
     }

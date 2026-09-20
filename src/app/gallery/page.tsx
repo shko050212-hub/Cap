@@ -124,9 +124,9 @@ export default function GalleryPage() {
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900"><path d="m9 18 6-6-6-6"/></svg>
       </button>
 
-      {/* 작품 슬라이더 영역 (고유 비율 강제) */}
+      {/* 작품 슬라이더 영역 (고유 비율 강제 및 크기 고정) */}
       <div 
-        className="relative z-10 w-full h-[70vh] max-h-[800px] mx-auto flex items-center justify-center"
+        className="relative z-10 w-full h-[550px] mx-auto flex items-center justify-center"
       >
         <AnimatePresence initial={false} custom={direction}>
           <motion.div

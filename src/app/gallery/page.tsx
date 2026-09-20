@@ -21,6 +21,7 @@ export default function GalleryPage() {
   const [liked, setLiked] = useState<Record<number, boolean>>({});
   const [isScaleView, setIsScaleView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   // 입찰 상태 관리
   const [bidStep, setBidStep] = useState<'initial' | 'input' | 'complete'>('initial');
@@ -187,8 +188,18 @@ export default function GalleryPage() {
         </AnimatePresence>
       </div>
 
-      {/* 하단 우측: 찜하기 및 구매 버튼 */}
+      {/* 하단 우측: 찜하기 및 구매 버튼, 프로필 버튼 */}
       <div className="absolute bottom-8 right-8 z-50 flex gap-4">
+        {/* 프로필 버튼 */}
+        <button 
+          onClick={() => setIsProfileOpen(true)}
+          className="bg-white/90 backdrop-blur rounded-full w-14 h-14 flex items-center justify-center shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-110 transition-transform group"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
+
         {/* 찜하기 하트 버튼 */}
         <button 
           onClick={toggleLike}
@@ -350,6 +361,74 @@ export default function GalleryPage() {
       >
         <img src="/mascot.png" alt="Docent Mascot" className="w-8 h-8 object-contain drop-shadow-md" />
       </motion.div>
+
+      {/* 프로필 사이드바 */}
+      <AnimatePresence>
+        {isProfileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsProfileOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-[200] flex flex-col"
+            >
+              <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+                <h2 className="text-xl font-bold">내 프로필</h2>
+                <button onClick={() => setIsProfileOpen(false)} className="text-gray-500 hover:text-black">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+              </div>
+              
+              <div className="p-6 flex-1 overflow-y-auto space-y-8">
+                {/* 프로필 정보 */}
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">관람객 님</h3>
+                    <button className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
+                  </div>
+                </div>
+
+                {/* 메뉴 리스트 */}
+                <div className="space-y-2">
+                  <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
+                    <span>찜한 작품 목록</span>
+                    <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">{Object.values(liked).filter(Boolean).length}</span>
+                  </button>
+                  <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
+                    구매내역 및 경매 현황
+                  </button>
+                  <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
+                    예술가 되기 (미술품 판매)
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 border-t">
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    window.location.href = '/';
+                  }}
+                  className="w-full py-3 bg-gray-100 text-red-600 font-bold rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  로그아웃
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

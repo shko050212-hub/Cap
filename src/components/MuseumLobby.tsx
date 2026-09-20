@@ -249,6 +249,7 @@ export default function MuseumLobby() {
           <div className="w-4 h-32 bg-white rounded-r-md ml-2"></div>
         </motion.div>
         <div className="absolute inset-0 bg-white flex flex-col items-center justify-center">
+          <img src="/mascot.png" alt="Mascot" className="w-24 h-24 mb-4 object-contain drop-shadow-md" />
           <h2 className="text-4xl font-light text-gray-800 tracking-widest">ARTMART GALLERY</h2>
         </div>
       </div>

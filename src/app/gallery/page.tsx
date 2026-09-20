@@ -29,6 +29,15 @@ export default function GalleryPage() {
   // 코인 상태
   const [userCoins, setUserCoins] = useState(0);
   const [chargeAmount, setChargeAmount] = useState('');
+  
+  // 경매 마감 타이머 상태
+  const [auctionEndTimes, setAuctionEndTimes] = useState<Record<number, number>>({});
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -182,6 +191,7 @@ export default function GalleryPage() {
       setBidError('보유하신 코인이 부족하십니다.');
     } else {
       setUserCoins(prev => prev - Number(bidAmount));
+      setAuctionEndTimes(prev => ({ ...prev, [currentArtwork.id]: Date.now() + 10 * 60 * 1000 }));
       setBidError('');
       setBidStep('complete');
       alert('입찰이 완료되었습니다. 호가 금액만큼 코인이 사용 정지됩니다.');
@@ -362,17 +372,35 @@ export default function GalleryPage() {
                       <li>추가로 보유하신 코인은 호가시 호가 금액 만큼 사용 정지되며 더 큰 호가가 나올 시 사용정지가 풀리게 됩니다.</li>
                     </ul>
                     
-                    {bidStep === 'initial' && (
-                      <div className="mt-4">
-                        <div className="flex justify-between items-center mb-2 px-1">
-                          <span className="text-xs font-semibold text-gray-500">내 보유 코인</span>
-                          <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
+                    {bidStep === 'initial' && (() => {
+                      const endTime = auctionEndTimes[currentArtwork.id];
+                      const timeLeftMs = endTime ? endTime - currentTime : 0;
+                      const hasActiveAuction = timeLeftMs > 0;
+                      const m = Math.floor(timeLeftMs / 60000);
+                      const s = Math.floor((timeLeftMs % 60000) / 1000);
+
+                      return (
+                        <div className="mt-4">
+                          <div className="flex justify-between items-center mb-2 px-1">
+                            <span className="text-xs font-semibold text-gray-500">내 보유 코인</span>
+                            <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
+                          </div>
+                          {hasActiveAuction && (
+                            <div className="flex justify-between items-center mb-3 px-1 text-red-600 bg-red-50 p-2 rounded border border-red-100">
+                              <span className="text-xs font-bold flex items-center gap-1">
+                                <span className="animate-pulse">⏳</span> 남은 시간
+                              </span>
+                              <span className="text-sm font-bold">
+                                {m}분 {s.toString().padStart(2, '0')}초
+                              </span>
+                            </div>
+                          )}
+                          <button onClick={() => setBidStep('input')} className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
+                            입찰가 입력하기
+                          </button>
                         </div>
-                        <button onClick={() => setBidStep('input')} className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
-                          입찰가 입력하기
-                        </button>
-                      </div>
-                    )}
+                      );
+                    })()}
                     
                     {bidStep === 'input' && (
                       <div className="mt-4 flex flex-col gap-2">

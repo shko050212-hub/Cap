@@ -37,9 +37,10 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ message: 'Login successful', role: admin.role });
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 8
+      maxAge: 60 * 60 * 8,
+      path: '/'
     });
     return response;
   } catch (err) {

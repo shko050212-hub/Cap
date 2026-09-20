@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
       if (!res.ok) {
         setError(data.error || '로그인 실패');
       } else {
-        router.push('/admin');
+        window.location.href = '/admin';
       }
     } catch {
       setError('서버 오류가 발생했습니다.');

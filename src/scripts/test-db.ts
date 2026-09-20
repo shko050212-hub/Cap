@@ -5,12 +5,8 @@ import { db } from '../lib/db';
 async function testConnection() {
   try {
     console.log('Testing RDS connection...');
-    const result = await db.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public';");
-    console.log('Connection successful!');
-    console.log('Tables in public schema:');
-    result.rows.forEach(row => {
-      console.log(`- ${row.tablename}`);
-    });
+    const result = await db.query("DELETE FROM users WHERE email = 'shko0502@daum.net' RETURNING *;");
+    console.log('Deleted user successfully!', result.rows);
   } catch (error) {
     console.error('Connection failed:', error);
   } finally {

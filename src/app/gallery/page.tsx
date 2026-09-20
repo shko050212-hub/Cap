@@ -348,8 +348,7 @@ export default function GalleryPage() {
         onClick={() => setIsDocentOpen(!isDocentOpen)}
         className="absolute bottom-8 right-8 z-50 cursor-pointer hover:scale-110 transition-transform bg-white/90 backdrop-blur rounded-full px-5 py-3 shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 group"
       >
-        <img src="/mascot.png" alt="Docent Mascot" className="w-6 h-6 object-contain" />
-        <span className="font-bold text-gray-800 text-sm tracking-wide hidden sm:block">Docent</span>
+        <img src="/mascot.png" alt="Docent Mascot" className="w-8 h-8 object-contain drop-shadow-md" />
       </motion.div>
     </motion.div>
   );

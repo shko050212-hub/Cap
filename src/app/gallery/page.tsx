@@ -107,8 +107,14 @@ export default function GalleryPage() {
   };
   
   const closeProfile = () => {
-    setIsProfileOpen(false);
-    setTimeout(() => setProfileView(null), 300);
+    if (profileView) {
+      setProfileView(null);
+      setTimeout(() => {
+        setIsProfileOpen(false);
+      }, 300);
+    } else {
+      setIsProfileOpen(false);
+    }
   };
   
   // 입찰 상태 관리

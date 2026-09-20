@@ -10,7 +10,7 @@ const artworks = [
   { id: 2, title: 'MORNING BREEZE', artist: '김아란', year: '1988', type: 'Acrylic on Wood', desc: '아침 햇살을 머금은 숲의 경쾌한 에너지를 담았습니다.', src: 'https://images.unsplash.com/photo-1579783900882-c0d9f07b1985?q=80&w=1000&auto=format&fit=crop', saleType: 'sale', price: 2500000, width: 90, height: 120 },
   { id: 3, title: 'CITY LIGHTS', artist: '이영수', year: '1990', type: 'Digital Art', desc: '잠들지 않는 도시의 밤을 화려한 네온 컬러로 재해석한 작품.', src: 'https://images.unsplash.com/photo-1582201942988-13e60e4556ee?q=80&w=1000&auto=format&fit=crop', saleType: 'sale', price: 1200000, width: 150, height: 100 },
   { id: 4, title: 'SILENT WAVE', artist: '최바다', year: '1975', type: 'Watercolor', desc: '바다의 고요함과 파도의 역동성을 동시에 표현했습니다.', src: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1000&auto=format&fit=crop', saleType: 'sale', price: 800000, width: 80, height: 80 },
-  { id: 5, title: 'TIMELESS BEAUTY', artist: '박경매', year: '1982', type: 'Mixed Media', desc: '시간의 흐름 속에서도 변치 않는 아름다움을 상징합니다. (경매 테스트용 더미 작품)', src: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1000&auto=format&fit=crop', saleType: 'auction', price: 150000, width: 100, height: 100 },
+  { id: 5, title: 'TIMELESS BEAUTY', artist: '박경매', year: '1982', type: 'Mixed Media', desc: '시간의 흐름 속에서도 변치 않는 아름다움을 상징합니다. (경매 테스트용 더미 작품)', src: 'https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=1000&auto=format&fit=crop', saleType: 'auction', price: 100, width: 100, height: 100 },
 ];
 
 export default function GalleryPage() {

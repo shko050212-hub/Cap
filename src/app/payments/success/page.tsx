@@ -20,9 +20,13 @@ function PaymentSuccessContent() {
 
     const verifyPayment = async () => {
       try {
+        const token = localStorage.getItem('token');
         const res = await fetch('/api/payments/verify', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
           body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) })
         });
         const data = await res.json();

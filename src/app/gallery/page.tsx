@@ -76,6 +76,41 @@ export default function GalleryPage() {
   const [sellType, setSellType] = useState<'sale' | 'auction'>('sale');
   const sellImageInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const res = await fetch('/api/user/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user.profile_name) {
+            setProfileName(data.user.profile_name);
+            setEditNameInput(data.user.profile_name);
+          }
+          if (data.user.profile_image) setProfileImage(data.user.profile_image);
+          if (data.user.coins) setUserCoins(data.user.coins);
+          
+          if (data.artworks && data.artworks.length > 0) {
+            setMyArtworks(data.artworks.map((a: any) => ({
+              id: a.id,
+              title: a.title,
+              price: a.price,
+              src: a.src,
+              status: a.status,
+              saleType: a.sale_type
+            })));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile', err);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const url = URL.createObjectURL(e.target.files[0]);
@@ -83,7 +118,19 @@ export default function GalleryPage() {
     }
   };
 
-  const handleProfileSave = () => {
+  const handleProfileSave = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ profileName: editNameInput, profileImage })
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
     setProfileName(editNameInput);
     alert('프로필이 성공적으로 업데이트되었습니다.');
   };
@@ -95,22 +142,40 @@ export default function GalleryPage() {
     }
   };
 
-  const handleSellSubmit = () => {
+  const handleSellSubmit = async () => {
     if (!sellTitle || !sellPrice || !sellImage) {
       alert('모든 항목을 입력하고 작품 사진을 업로드해주세요.');
       return;
     }
     alert('작품 등록 신청이 완료되었습니다.\n관리자의 승인을 기다리는 중입니다. 승인이 완료되면 갤러리에 정식으로 등록되어 다른 사용자들에게 보여집니다.');
     
+    let dbId = Date.now();
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const res = await fetch('/api/artworks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ title: sellTitle, price: Number(sellPrice), src: sellImage, saleType: sellType })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          dbId = data.artwork.id;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     const newArt: MyArtwork = {
-      id: Date.now(),
+      id: dbId,
       title: sellTitle,
       price: Number(sellPrice),
       src: sellImage,
       status: 'pending',
       saleType: sellType
     };
-    setMyArtworks(prev => [...prev, newArt]);
+    setMyArtworks(prev => [newArt, ...prev]);
 
     // 폼 초기화 및 닫기
     setSellTitle('');
@@ -184,12 +249,24 @@ export default function GalleryPage() {
     }, 300);
   };
   
-  const handleBidSubmit = () => {
+  const handleBidSubmit = async () => {
     if (Number(bidAmount) < currentArtwork.price) {
       setBidError('최소 시작가 이상의 금액을 입력해주세요.');
     } else if (Number(bidAmount) > userCoins) {
       setBidError('보유하신 코인이 부족하십니다.');
     } else {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          await fetch('/api/user/coins', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ amount: Number(bidAmount), action: 'subtract' })
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
       setUserCoins(prev => prev - Number(bidAmount));
       setAuctionEndTimes(prev => ({ ...prev, [currentArtwork.id]: Date.now() + 10 * 60 * 1000 }));
       setBidError('');
@@ -445,8 +522,20 @@ export default function GalleryPage() {
                           <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
                         </div>
                         <button 
-                          onClick={() => {
+                          onClick={async () => {
                             if (userCoins >= currentArtwork.price) {
+                              const token = localStorage.getItem('token');
+                              if (token) {
+                                try {
+                                  await fetch('/api/user/coins', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                    body: JSON.stringify({ amount: currentArtwork.price, action: 'subtract' })
+                                  });
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }
                               setUserCoins(prev => prev - currentArtwork.price);
                               alert('구매가 완료되었습니다.');
                               setBidStep('complete');

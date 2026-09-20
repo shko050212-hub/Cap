@@ -33,48 +33,70 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <div className="w-full max-w-md">
-        {/* 로고 */}
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: '#c8a694' }}
+    >
+      {/* 배경 그라디언트 */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.15) 100%)'
+        }}
+      />
+
+      <div className="relative w-full max-w-sm mx-4">
+        {/* 헤더 */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
-              <span className="text-black font-black text-sm">A</span>
-            </div>
-            <span className="text-white font-bold text-xl tracking-widest">ARTMART</span>
-          </div>
-          <p className="text-gray-500 text-sm tracking-widest uppercase">Admin Console</p>
+          <p className="text-[#3a2a1e]/50 text-xs tracking-[0.4em] uppercase mb-3">ArtMart</p>
+          <h1 className="text-[#1a1008] text-3xl font-light tracking-[0.15em] uppercase">
+            Admin
+          </h1>
+          <div className="w-12 h-px bg-[#3a2a1e]/30 mx-auto mt-4" />
         </div>
 
         {/* 카드 */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-          <h1 className="text-white text-lg font-bold mb-6">관리자 로그인</h1>
-          <form onSubmit={handleLogin} className="space-y-4">
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: 'rgba(255,255,255,0.55)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.7)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)'
+          }}
+        >
+          <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-gray-400 text-xs font-bold mb-1.5 uppercase tracking-wider">Email</label>
+              <label className="block text-[#3a2a1e]/70 text-xs font-semibold mb-2 tracking-wider uppercase">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition text-sm"
                 placeholder="admin@artmart.kr"
+                className="w-full rounded-xl px-4 py-3 text-sm text-[#1a1008] placeholder-[#3a2a1e]/30 focus:outline-none focus:ring-2 focus:ring-[#3a2a1e]/20 transition"
+                style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(58,42,30,0.15)' }}
               />
             </div>
             <div>
-              <label className="block text-gray-400 text-xs font-bold mb-1.5 uppercase tracking-wider">Password</label>
+              <label className="block text-[#3a2a1e]/70 text-xs font-semibold mb-2 tracking-wider uppercase">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-4 py-3 focus:border-blue-500 focus:outline-none transition text-sm"
-                placeholder="••••••••"
+                placeholder="••••••••••"
+                className="w-full rounded-xl px-4 py-3 text-sm text-[#1a1008] placeholder-[#3a2a1e]/30 focus:outline-none focus:ring-2 focus:ring-[#3a2a1e]/20 transition"
+                style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(58,42,30,0.15)' }}
               />
             </div>
 
             {error && (
-              <div className="bg-red-900/30 border border-red-700 text-red-400 text-sm p-3 rounded-lg">
+              <div className="text-red-700 text-xs font-medium bg-red-50/80 border border-red-200 rounded-lg px-4 py-3">
                 {error}
               </div>
             )}
@@ -82,18 +104,22 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg transition text-sm mt-2"
+              className="w-full py-3.5 rounded-xl text-sm font-bold tracking-widest uppercase transition-all active:scale-95"
+              style={{
+                background: loading ? 'rgba(26,16,8,0.4)' : '#1a1008',
+                color: '#f5ede6',
+                boxShadow: loading ? 'none' : '0 4px 20px rgba(26,16,8,0.3)',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
             >
-              {loading ? '인증 중...' : '로그인'}
+              {loading ? '확인 중...' : '입장'}
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-800">
-            <p className="text-gray-600 text-xs text-center">
-              이 페이지는 인가된 관리자만 접근할 수 있습니다.<br />
-              무단 접근 시도는 기록됩니다.
-            </p>
-          </div>
+          <p className="text-center text-[#3a2a1e]/35 text-xs mt-6 leading-relaxed">
+            인가된 관리자만 접근 가능합니다<br />
+            모든 접근 기록은 저장됩니다
+          </p>
         </div>
       </div>
     </div>

@@ -1,16 +1,26 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-interface Stats {
-  requested: string;
-  inspected: string;
-  exhibited: string;
-  rejected: string;
-  total: string;
+function StatCard({ label, value, accent }: { label: string; value: string; accent: string }) {
+  return (
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: 'rgba(255,255,255,0.45)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.6)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+      }}
+    >
+      <p className="text-[#3a2a1e]/50 text-xs tracking-widest uppercase mb-3">{label}</p>
+      <p className="text-[#1a1008] font-light" style={{ fontSize: 40, lineHeight: 1 }}>{value}</p>
+      <div className="w-8 h-0.5 mt-4 rounded-full" style={{ background: accent }} />
+    </div>
+  );
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<any>(null);
   const [userCount, setUserCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -39,49 +49,58 @@ export default function AdminDashboard() {
   }, []);
 
   const cards = [
-    { label: '검수 대기', value: stats?.requested || '0', color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20', icon: '⏳' },
-    { label: '검수 완료', value: stats?.inspected || '0', color: 'text-blue-400', bg: 'bg-blue-400/10 border-blue-400/20', icon: '✅' },
-    { label: '전시 중', value: stats?.exhibited || '0', color: 'text-green-400', bg: 'bg-green-400/10 border-green-400/20', icon: '🖼️' },
-    { label: '반려됨', value: stats?.rejected || '0', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/20', icon: '❌' },
-    { label: '전체 작품', value: stats?.total || '0', color: 'text-gray-300', bg: 'bg-gray-700/30 border-gray-700', icon: '📦' },
-    { label: '전체 회원', value: String(userCount), color: 'text-purple-400', bg: 'bg-purple-400/10 border-purple-400/20', icon: '👥' },
+    { label: '검수 대기', value: stats?.requested || '0', accent: '#d4a843' },
+    { label: '전시 중', value: stats?.exhibited || '0', accent: '#6aaa7a' },
+    { label: '반려됨', value: stats?.rejected || '0', accent: '#c0604a' },
+    { label: '전체 작품', value: stats?.total || '0', accent: '#c8a694' },
+    { label: '전체 회원', value: String(userCount), accent: '#8a7aaa' },
+    { label: '검수 완료', value: stats?.inspected || '0', accent: '#5a9aaa' },
+  ];
+
+  const quickActions = [
+    { href: '/admin/artworks?status=REQUESTED', label: '검수 대기 확인', sub: '승인/반려 처리' },
+    { href: '/admin/auctions', label: '경매 현황', sub: '실시간 모니터링' },
+    { href: '/admin/users', label: '회원 관리', sub: '블랙리스트/정지' },
+    { href: '/admin/logs', label: '감사 로그', sub: '작업 기록 열람' },
   ];
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-white text-2xl font-bold">대시보드</h1>
-        <p className="text-gray-500 text-sm mt-1">ArtMart Admin Console — 운영 현황 요약</p>
+    <div className="p-10">
+      {/* 헤더 */}
+      <div className="mb-10">
+        <p className="text-[#3a2a1e]/40 text-xs tracking-[0.4em] uppercase mb-2">ArtMart Admin</p>
+        <h1 className="text-[#1a1008] text-3xl font-light tracking-wide">운영 대시보드</h1>
+        <div className="w-12 h-px bg-[#3a2a1e]/20 mt-4" />
       </div>
 
       {loading ? (
-        <div className="text-gray-500 text-sm">불러오는 중...</div>
+        <p className="text-[#3a2a1e]/40 text-sm">불러오는 중...</p>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          {/* 통계 카드 */}
+          <div className="grid grid-cols-3 gap-4 mb-10">
             {cards.map(card => (
-              <div key={card.label} className={`border rounded-xl p-6 ${card.bg}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl">{card.icon}</span>
-                  <span className={`text-3xl font-bold ${card.color}`}>{card.value}</span>
-                </div>
-                <p className="text-gray-400 text-sm font-medium">{card.label}</p>
-              </div>
+              <StatCard key={card.label} {...card} />
             ))}
           </div>
 
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h2 className="text-white font-bold mb-4">빠른 액션</h2>
+          {/* 빠른 액션 */}
+          <div>
+            <p className="text-[#3a2a1e]/40 text-xs tracking-widest uppercase mb-4">빠른 액션</p>
             <div className="grid grid-cols-4 gap-3">
-              {[
-                { href: '/admin/artworks?status=REQUESTED', label: '검수 대기 작품 보기', color: 'bg-amber-600 hover:bg-amber-500' },
-                { href: '/admin/auctions', label: '경매 현황 보기', color: 'bg-blue-600 hover:bg-blue-500' },
-                { href: '/admin/users', label: '회원 목록 보기', color: 'bg-purple-600 hover:bg-purple-500' },
-                { href: '/admin/logs', label: '감사 로그 보기', color: 'bg-gray-700 hover:bg-gray-600' },
-              ].map(action => (
-                <a key={action.href} href={action.href}
-                  className={`${action.color} text-white text-sm font-medium py-3 px-4 rounded-lg text-center transition`}>
-                  {action.label}
+              {quickActions.map(action => (
+                <a
+                  key={action.href}
+                  href={action.href}
+                  className="rounded-2xl p-5 transition-all hover:scale-[1.02] active:scale-95"
+                  style={{
+                    background: 'rgba(26,16,8,0.08)',
+                    border: '1px solid rgba(26,16,8,0.12)',
+                    backdropFilter: 'blur(8px)'
+                  }}
+                >
+                  <p className="text-[#1a1008] font-semibold text-sm mb-1">{action.label}</p>
+                  <p className="text-[#3a2a1e]/50 text-xs">{action.sub}</p>
                 </a>
               ))}
             </div>

@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-const ACTION_COLORS: Record<string, string> = {
-  LOGIN: 'text-blue-300 bg-blue-900/20 border-blue-700',
-  APPROVE: 'text-green-300 bg-green-900/20 border-green-700',
-  REJECT: 'text-red-300 bg-red-900/20 border-red-700',
-  BID_CANCEL: 'text-amber-300 bg-amber-900/20 border-amber-700',
-  REFUND: 'text-purple-300 bg-purple-900/20 border-purple-700',
-  ROLE_CHANGE: 'text-cyan-300 bg-cyan-900/20 border-cyan-700',
+const ACTION_META: Record<string, { label: string; color: string }> = {
+  LOGIN:       { label: 'LOGIN',       color: '#3a7aaa' },
+  APPROVE:     { label: 'APPROVE',     color: '#3a7a5a' },
+  REJECT:      { label: 'REJECT',      color: '#aa3a2a' },
+  BID_CANCEL:  { label: 'BID_CANCEL',  color: '#b5871a' },
+  REFUND:      { label: 'REFUND',      color: '#8a5aaa' },
+  ROLE_CHANGE: { label: 'ROLE_CHANGE', color: '#5a9aaa' },
 };
 
 export default function AdminLogsPage() {
@@ -27,42 +27,48 @@ export default function AdminLogsPage() {
   }, []);
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">감사 로그</h1>
-        <p className="text-gray-500 text-sm mt-1">모든 관리자 작업이 불변 기록으로 저장됩니다</p>
+    <div className="p-10">
+      <div className="mb-8">
+        <p className="text-[#3a2a1e]/40 text-xs tracking-[0.4em] uppercase mb-2">보안</p>
+        <h1 className="text-[#1a1008] text-3xl font-light tracking-wide">감사 로그</h1>
+        <div className="w-12 h-px bg-[#3a2a1e]/20 mt-4" />
+        <p className="text-[#3a2a1e]/40 text-xs mt-3">모든 관리자 작업은 불변 기록으로 저장됩니다</p>
       </div>
 
-      {loading ? <div className="text-gray-500 text-sm">불러오는 중...</div> : (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      {loading ? (
+        <p className="text-[#3a2a1e]/40 text-sm">불러오는 중...</p>
+      ) : (
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.6)' }}>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="p-4 text-left text-gray-400 font-medium">시각</th>
-                <th className="p-4 text-left text-gray-400 font-medium">관리자</th>
-                <th className="p-4 text-left text-gray-400 font-medium">액션</th>
-                <th className="p-4 text-left text-gray-400 font-medium">대상</th>
-                <th className="p-4 text-left text-gray-400 font-medium">사유</th>
+              <tr style={{ borderBottom: '1px solid rgba(58,42,30,0.1)' }}>
+                {['시각', '관리자', '액션', '대상', '사유'].map(h => (
+                  <th key={h} className="p-4 text-left text-[#3a2a1e]/40 font-medium text-xs uppercase tracking-wider">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {logs.map(log => (
-                <tr key={log.log_id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
-                  <td className="p-4 text-gray-500 text-xs whitespace-nowrap">
-                    {new Date(log.created_at).toLocaleString('ko-KR')}
-                  </td>
-                  <td className="p-4 text-gray-300 text-xs">{log.admin_email || `#${log.admin_id}`}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded border text-xs font-bold ${ACTION_COLORS[log.action_type] || 'text-gray-400 bg-gray-800 border-gray-700'}`}>
-                      {log.action_type}
-                    </span>
-                  </td>
-                  <td className="p-4 text-gray-400 text-xs">{log.target_domain} #{log.target_id}</td>
-                  <td className="p-4 text-gray-500 text-xs">{log.reason || '-'}</td>
-                </tr>
-              ))}
+              {logs.map(log => {
+                const meta = ACTION_META[log.action_type] || { label: log.action_type, color: '#888' };
+                return (
+                  <tr key={log.log_id} className="hover:bg-white/20 transition" style={{ borderBottom: '1px solid rgba(58,42,30,0.06)' }}>
+                    <td className="p-4 text-[#3a2a1e]/50 text-xs whitespace-nowrap">
+                      {new Date(log.created_at).toLocaleString('ko-KR')}
+                    </td>
+                    <td className="p-4 text-[#3a2a1e]/70 text-xs">{log.admin_email || `#${log.admin_id}`}</td>
+                    <td className="p-4">
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{ color: meta.color, background: `${meta.color}18` }}>
+                        {meta.label}
+                      </span>
+                    </td>
+                    <td className="p-4 text-[#3a2a1e]/50 text-xs">{log.target_domain} #{log.target_id}</td>
+                    <td className="p-4 text-[#3a2a1e]/40 text-xs">{log.reason || '—'}</td>
+                  </tr>
+                );
+              })}
               {logs.length === 0 && (
-                <tr><td colSpan={5} className="p-8 text-center text-gray-600">로그가 없습니다.</td></tr>
+                <tr><td colSpan={5} className="p-10 text-center text-[#3a2a1e]/30 text-sm">로그가 없습니다.</td></tr>
               )}
             </tbody>
           </table>

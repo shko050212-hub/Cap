@@ -4,11 +4,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const navItems = [
-  { href: '/admin', label: '대시보드', icon: '📊' },
-  { href: '/admin/artworks', label: '작품 검수', icon: '🖼️' },
-  { href: '/admin/auctions', label: '경매 모니터링', icon: '🔨' },
-  { href: '/admin/users', label: '회원 관리', icon: '👥' },
-  { href: '/admin/logs', label: '감사 로그', icon: '📋' },
+  { href: '/admin', label: '대시보드', icon: '◈' },
+  { href: '/admin/artworks', label: '작품 검수', icon: '◻' },
+  { href: '/admin/auctions', label: '경매 모니터링', icon: '◇' },
+  { href: '/admin/users', label: '회원 관리', icon: '○' },
+  { href: '/admin/logs', label: '감사 로그', icon: '≡' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -16,31 +16,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   useEffect(() => {
-    // F12 및 우클릭 방지
+    if (pathname === '/admin/login') return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C','U'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+        (e.ctrlKey && e.key === 'U')
+      ) {
         e.preventDefault();
-        return false;
       }
     };
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('contextmenu', handleContextMenu);
-    // 개발자 도구 감지
-    const devCheck = setInterval(() => {
-      const threshold = 160;
-      if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-        document.title = '⚠️ 접근 차단';
-      } else {
-        document.title = 'ArtMart Admin';
-      }
-    }, 1000);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('contextmenu', handleContextMenu);
-      clearInterval(devCheck);
     };
-  }, []);
+  }, [pathname]);
 
   const handleLogout = async () => {
     await fetch('/api/admin/auth/logout', { method: 'POST' });
@@ -50,56 +44,69 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (pathname === '/admin/login') return <>{children}</>;
 
   return (
-    <div className="min-h-screen bg-gray-950 flex select-none">
+    <div className="min-h-screen flex select-none" style={{ backgroundColor: '#c8a694' }}>
+      {/* 배경 */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(ellipse at 50% -20%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.2) 100%)'
+        }}
+      />
+
       {/* 사이드바 */}
-      <aside className="w-60 bg-gray-900 border-r border-gray-800 flex flex-col">
+      <aside
+        className="relative z-10 w-56 flex flex-col"
+        style={{
+          background: 'rgba(26,16,8,0.85)',
+          backdropFilter: 'blur(20px)',
+          borderRight: '1px solid rgba(255,255,255,0.08)'
+        }}
+      >
         {/* 로고 */}
-        <div className="p-6 border-b border-gray-800">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-white rounded-sm flex items-center justify-center">
-              <span className="text-black font-black text-xs">A</span>
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm tracking-wider">ARTMART</p>
-              <p className="text-gray-500 text-xs">Admin Console</p>
-            </div>
-          </div>
+        <div className="px-6 py-8 border-b border-white/5">
+          <p className="text-[#c8a694]/50 text-[10px] tracking-[0.4em] uppercase mb-1">ArtMart</p>
+          <p className="text-[#f5ede6] text-lg font-light tracking-[0.2em] uppercase">Admin</p>
         </div>
 
         {/* 네비게이션 */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 px-3 py-6 space-y-1">
           {navItems.map(item => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition ${
-                  isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"
+                style={{
+                  background: isActive ? 'rgba(200,166,148,0.15)' : 'transparent',
+                  color: isActive ? '#f5ede6' : 'rgba(245,237,230,0.4)',
+                  borderLeft: isActive ? '2px solid #c8a694' : '2px solid transparent'
+                }}
               >
-                <span>{item.icon}</span>
-                {item.label}
+                <span className="text-base">{item.icon}</span>
+                <span className="font-medium tracking-wide">{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        {/* 하단 */}
-        <div className="p-4 border-t border-gray-800">
+        {/* 로그아웃 */}
+        <div className="px-3 py-6 border-t border-white/5">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all"
+            style={{ color: 'rgba(245,237,230,0.3)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'rgba(245,237,230,0.7)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(245,237,230,0.3)')}
           >
-            <span>🚪</span> 로그아웃
+            <span>←</span>
+            <span>로그아웃</span>
           </button>
         </div>
       </aside>
 
-      {/* 메인 콘텐츠 */}
-      <main className="flex-1 overflow-auto bg-gray-950">
+      {/* 메인 */}
+      <main className="relative z-10 flex-1 overflow-auto">
         {children}
       </main>
     </div>

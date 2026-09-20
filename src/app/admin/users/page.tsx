@@ -24,7 +24,7 @@ export default function AdminUsersPage() {
   useEffect(() => { fetchUsers(); }, []);
 
   const handleAction = async (user_id: number, action: string) => {
-    const reason = action === 'blacklist' ? prompt('블랙리스트 처리 사유를 입력하세요:') : '';
+    const reason = action === 'blacklist' ? prompt('블랙리스트 처리 사유:') : '';
     if (action === 'blacklist' && !reason) return;
     await fetch('/api/admin/users', {
       method: 'POST',
@@ -34,73 +34,72 @@ export default function AdminUsersPage() {
     fetchUsers();
   };
 
-  const filtered = users.filter(u => u.email.includes(search) || (u.profile_name || '').includes(search));
+  const filtered = users.filter(u =>
+    u.email.includes(search) || (u.profile_name || '').includes(search)
+  );
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">회원 관리</h1>
-        <p className="text-gray-500 text-sm mt-1">회원 상태 관리 및 블랙리스트 처리</p>
+    <div className="p-10">
+      <div className="mb-8">
+        <p className="text-[#3a2a1e]/40 text-xs tracking-[0.4em] uppercase mb-2">회원 관리</p>
+        <h1 className="text-[#1a1008] text-3xl font-light tracking-wide">회원 목록</h1>
+        <div className="w-12 h-px bg-[#3a2a1e]/20 mt-4" />
       </div>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="이메일 또는 이름 검색..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-80 bg-gray-900 border border-gray-700 text-white text-sm rounded-lg px-4 py-2 focus:border-blue-500 focus:outline-none"
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="이메일 또는 이름 검색"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="mb-6 w-80 px-4 py-2.5 rounded-xl text-sm text-[#1a1008] placeholder-[#3a2a1e]/30 focus:outline-none focus:ring-2 transition"
+        style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(58,42,30,0.15)', focusRingColor: 'rgba(58,42,30,0.2)' }}
+      />
 
-      {loading ? <div className="text-gray-500 text-sm">불러오는 중...</div> : (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      {loading ? (
+        <p className="text-[#3a2a1e]/40 text-sm">불러오는 중...</p>
+      ) : (
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.45)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.6)' }}>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800">
-                <th className="p-4 text-left text-gray-400 font-medium">이메일 (마스킹)</th>
-                <th className="p-4 text-left text-gray-400 font-medium">닉네임</th>
-                <th className="p-4 text-left text-gray-400 font-medium">보유 코인</th>
-                <th className="p-4 text-left text-gray-400 font-medium">역할</th>
-                <th className="p-4 text-left text-gray-400 font-medium">가입일</th>
-                <th className="p-4 text-left text-gray-400 font-medium">액션</th>
+              <tr style={{ borderBottom: '1px solid rgba(58,42,30,0.1)' }}>
+                {['이메일', '닉네임', '보유 코인', '역할', '가입일', '액션'].map(h => (
+                  <th key={h} className="p-4 text-left text-[#3a2a1e]/40 font-medium text-xs uppercase tracking-wider">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {filtered.map(user => (
-                <tr key={user.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                <tr key={user.id} className="hover:bg-white/20 transition" style={{ borderBottom: '1px solid rgba(58,42,30,0.06)' }}>
+                  <td className="p-4 text-[#3a2a1e]/70 text-xs">{maskEmail(user.email)}</td>
+                  <td className="p-4 text-[#1a1008] font-medium">{user.profile_name || '-'}</td>
+                  <td className="p-4 text-[#1a1008]">{(user.coins || 0).toLocaleString()}</td>
                   <td className="p-4">
-                    <span className="text-gray-300">{maskEmail(user.email)}</span>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full"
+                      style={{
+                        color: user.role === 'BLACKLIST' ? '#aa3a2a' : user.role === 'ADMIN' ? '#3a7aaa' : '#5a5a5a',
+                        background: user.role === 'BLACKLIST' ? 'rgba(170,58,42,0.12)' : user.role === 'ADMIN' ? 'rgba(58,122,170,0.12)' : 'rgba(90,90,90,0.1)'
+                      }}>
+                      {user.role || 'USER'}
+                    </span>
                   </td>
-                  <td className="p-4 text-gray-400">{user.profile_name || '-'}</td>
-                  <td className="p-4 text-white font-medium">{(user.coins || 0).toLocaleString()}</td>
+                  <td className="p-4 text-[#3a2a1e]/40 text-xs">{new Date(user.created_at).toLocaleDateString('ko-KR')}</td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 rounded border text-xs font-bold ${
-                      user.role === 'BLACKLIST' ? 'bg-red-900/30 text-red-300 border-red-700' :
-                      user.role === 'ADMIN' ? 'bg-blue-900/30 text-blue-300 border-blue-700' :
-                      'bg-gray-800 text-gray-400 border-gray-700'
-                    }`}>{user.role || 'USER'}</span>
-                  </td>
-                  <td className="p-4 text-gray-500 text-xs">{new Date(user.created_at).toLocaleDateString('ko-KR')}</td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      {user.role !== 'BLACKLIST' ? (
-                        <button onClick={() => handleAction(user.id, 'blacklist')}
-                          className="px-3 py-1 bg-red-700 hover:bg-red-600 text-white text-xs font-bold rounded">
-                          블랙리스트
-                        </button>
-                      ) : (
-                        <button onClick={() => handleAction(user.id, 'unblock')}
-                          className="px-3 py-1 bg-green-700 hover:bg-green-600 text-white text-xs font-bold rounded">
-                          차단 해제
-                        </button>
-                      )}
-                    </div>
+                    {user.role !== 'BLACKLIST' ? (
+                      <button onClick={() => handleAction(user.id, 'blacklist')}
+                        className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: '#aa3a2a' }}>
+                        블랙리스트
+                      </button>
+                    ) : (
+                      <button onClick={() => handleAction(user.id, 'unblock')}
+                        className="px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: '#3a7a5a' }}>
+                        차단 해제
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} className="p-8 text-center text-gray-600">검색 결과가 없습니다.</td></tr>
+                <tr><td colSpan={6} className="p-10 text-center text-[#3a2a1e]/30 text-sm">결과 없음</td></tr>
               )}
             </tbody>
           </table>

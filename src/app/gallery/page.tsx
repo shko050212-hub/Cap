@@ -631,7 +631,7 @@ export default function GalleryPage() {
                               const amount = Number(chargeAmount);
                               const orderId = 'ORDER-' + Date.now() + Math.random().toString(36).substring(2, 7);
                               
-                              await tossPayments.requestPayment('카드', {
+                              await tossPayments.requestPayment('토스결제', {
                                 amount,
                                 orderId,
                                 orderName: '아트마트 코인 충전',

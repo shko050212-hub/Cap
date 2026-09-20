@@ -112,7 +112,7 @@ export default function AdminAuctionsPage() {
               {bids.length === 0 ? (
                 <div className="p-8 text-center text-[#3a2a1e]/30 text-sm">입찰 내역 없음</div>
               ) : (
-                <div className="divide-y max-h-[500px] overflow-y-auto" style={{ divideColor: 'rgba(58,42,30,0.06)' }}>
+                <div className="divide-y divide-[rgba(58,42,30,0.06)] max-h-[500px] overflow-y-auto">
                   {bids.map((bid, i) => (
                     <div key={i} className="p-4">
                       <div className="flex justify-between items-start">

@@ -51,8 +51,8 @@ export default function AdminUsersPage() {
         placeholder="이메일 또는 이름 검색"
         value={search}
         onChange={e => setSearch(e.target.value)}
-        className="mb-6 w-80 px-4 py-2.5 rounded-xl text-sm text-[#1a1008] placeholder-[#3a2a1e]/30 focus:outline-none focus:ring-2 transition"
-        style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(58,42,30,0.15)', focusRingColor: 'rgba(58,42,30,0.2)' }}
+        className="mb-6 w-80 px-4 py-2.5 rounded-xl text-sm text-[#1a1008] placeholder-[#3a2a1e]/30 focus:outline-none focus:ring-2 focus:ring-[#3a2a1e]/20 transition"
+        style={{ background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(58,42,30,0.15)' }}
       />
 
       {loading ? (

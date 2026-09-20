@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // 임시 작품 데이터 목록 (판매방식, 가격, 사이즈 추가)
@@ -23,6 +23,50 @@ export default function GalleryPage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileView, setProfileView] = useState<'edit' | 'liked' | 'sell' | 'history' | null>(null);
+  
+  // 프로필 정보 상태
+  const [profileName, setProfileName] = useState('관람객 님');
+  const [profileImage, setProfileImage] = useState('/mascot.png');
+  const [editNameInput, setEditNameInput] = useState(profileName);
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
+
+  // 미술품 판매 상태
+  const [sellTitle, setSellTitle] = useState('');
+  const [sellPrice, setSellPrice] = useState('');
+  const [sellImage, setSellImage] = useState<string | null>(null);
+  const sellImageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const url = URL.createObjectURL(e.target.files[0]);
+      setProfileImage(url);
+    }
+  };
+
+  const handleProfileSave = () => {
+    setProfileName(editNameInput);
+    alert('프로필이 성공적으로 업데이트되었습니다.');
+  };
+
+  const handleSellImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const url = URL.createObjectURL(e.target.files[0]);
+      setSellImage(url);
+    }
+  };
+
+  const handleSellSubmit = () => {
+    if (!sellTitle || !sellPrice || !sellImage) {
+      alert('모든 항목을 입력하고 작품 사진을 업로드해주세요.');
+      return;
+    }
+    alert('작품 등록 신청이 완료되었습니다.\n관리자의 승인을 기다리는 중입니다. 승인이 완료되면 갤러리에 정식으로 등록되어 다른 사용자들에게 보여집니다.');
+    // 폼 초기화 및 닫기
+    setSellTitle('');
+    setSellPrice('');
+    setSellImage(null);
+    setProfileView(null);
+  };
   
   const closeProfile = () => {
     setIsProfileOpen(false);
@@ -201,7 +245,7 @@ export default function GalleryPage() {
           onClick={() => setIsProfileOpen(true)}
           className="bg-white/90 backdrop-blur rounded-full w-14 h-14 flex items-center justify-center shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-110 transition-transform group overflow-hidden"
         >
-          <img src="/mascot.png" alt="Profile" className="w-8 h-8 object-contain drop-shadow-sm" />
+          <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
         </button>
 
         {/* 찜하기 하트 버튼 */}
@@ -402,15 +446,27 @@ export default function GalleryPage() {
                       <div className="space-y-4">
                         <div className="flex flex-col items-center mb-6">
                           <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-md border overflow-hidden mb-4">
-                            <img src="/mascot.png" alt="Profile" className="w-16 h-16 object-contain" />
+                            <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                           </div>
-                          <button className="px-4 py-2 bg-black text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition">사진 변경</button>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            ref={profileImageInputRef}
+                            onChange={handleProfileImageChange}
+                          />
+                          <button onClick={() => profileImageInputRef.current?.click()} className="px-4 py-2 bg-black text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition">사진 변경</button>
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">이름</label>
-                          <input type="text" defaultValue="관람객 님" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black focus:ring-1 focus:ring-black outline-none" />
+                          <input 
+                            type="text" 
+                            value={editNameInput} 
+                            onChange={(e) => setEditNameInput(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black focus:ring-1 focus:ring-black outline-none" 
+                          />
                         </div>
-                        <button className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">저장하기</button>
+                        <button onClick={handleProfileSave} className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">저장하기</button>
                       </div>
                     )}
                     
@@ -444,20 +500,48 @@ export default function GalleryPage() {
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">작품 제목</label>
-                          <input type="text" placeholder="작품명 입력" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" />
+                          <input 
+                            type="text" 
+                            placeholder="작품명 입력" 
+                            value={sellTitle}
+                            onChange={(e) => setSellTitle(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" 
+                          />
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">희망 가격 (₩)</label>
-                          <input type="number" placeholder="예: 50000" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" />
+                          <input 
+                            type="number" 
+                            placeholder="예: 500000" 
+                            value={sellPrice}
+                            onChange={(e) => setSellPrice(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" 
+                          />
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">작품 사진 업로드</label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                            <span>클릭하여 사진 선택</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            ref={sellImageInputRef}
+                            onChange={handleSellImageChange}
+                          />
+                          <div 
+                            onClick={() => sellImageInputRef.current?.click()}
+                            className="border-2 border-dashed border-gray-300 rounded-lg p-2 flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 transition min-h-[160px]"
+                          >
+                            {sellImage ? (
+                              <img src={sellImage} alt="Preview" className="w-full h-32 object-contain rounded" />
+                            ) : (
+                              <>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                <span>클릭하여 사진 선택</span>
+                              </>
+                            )}
                           </div>
                         </div>
-                        <button className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">작품 등록 신청</button>
+                        <button onClick={handleSellSubmit} className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">작품 등록 신청</button>
                       </div>
                     )}
                     
@@ -489,10 +573,10 @@ export default function GalleryPage() {
                 {/* 프로필 정보 */}
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-200 overflow-hidden">
-                    <img src="/mascot.png" alt="Profile" className="w-10 h-10 object-contain drop-shadow-sm" />
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover drop-shadow-sm" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">관람객 님</h3>
+                    <h3 className="font-bold text-lg">{profileName}</h3>
                     <button onClick={() => setProfileView('edit')} className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
                   </div>
                 </div>

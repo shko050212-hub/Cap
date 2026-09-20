@@ -627,7 +627,7 @@ export default function GalleryPage() {
                               return;
                             }
                             try {
-                              const tossPayments = await loadTossPayments('test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm');
+                              const tossPayments = await loadTossPayments('test_ck_vZnjEJeQVxKNDwX6LRp93PmOoBN0');
                               const amount = Number(chargeAmount);
                               const orderId = 'ORDER-' + Date.now() + Math.random().toString(36).substring(2, 7);
                               

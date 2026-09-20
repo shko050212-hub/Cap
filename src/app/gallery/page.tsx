@@ -355,9 +355,15 @@ export default function GalleryPage() {
                     </ul>
                     
                     {bidStep === 'initial' && (
-                      <button onClick={() => setBidStep('input')} className="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
-                        입찰가 입력하기
-                      </button>
+                      <div className="mt-4">
+                        <div className="flex justify-between items-center mb-2 px-1">
+                          <span className="text-xs font-semibold text-gray-500">내 보유 코인</span>
+                          <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
+                        </div>
+                        <button onClick={() => setBidStep('input')} className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
+                          입찰가 입력하기
+                        </button>
+                      </div>
                     )}
                     
                     {bidStep === 'input' && (
@@ -397,9 +403,15 @@ export default function GalleryPage() {
                     </ul>
                     
                     {bidStep === 'initial' && (
-                      <button onClick={() => setBidStep('complete')} className="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
-                        ₩{currentArtwork.price.toLocaleString()} 결제하기
-                      </button>
+                      <div className="mt-4">
+                        <div className="flex justify-between items-center mb-2 px-1">
+                          <span className="text-xs font-semibold text-gray-500">내 보유 코인</span>
+                          <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
+                        </div>
+                        <button onClick={() => setBidStep('complete')} className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
+                          ₩{currentArtwork.price.toLocaleString()} 결제하기
+                        </button>
+                      </div>
                     )}
                     
                     {bidStep === 'complete' && (
@@ -598,12 +610,12 @@ export default function GalleryPage() {
 
                     {profileView === 'charge' && (
                       <div className="space-y-4">
-                        <div className="bg-yellow-50 p-4 rounded-lg text-yellow-800 text-sm mb-4 leading-relaxed">
+                        <div className="bg-gray-100 border border-gray-200 p-4 rounded-lg text-gray-800 text-sm mb-4 leading-relaxed font-medium">
                           현금을 코인으로 환전하여 작품을 즉시 구매하거나 경매에 참여해보세요. (1원 = 1코인)
                         </div>
-                        <div className="p-4 bg-gray-50 border rounded-lg text-center mb-6">
-                          <p className="text-sm text-gray-500 mb-1">현재 보유 코인</p>
-                          <p className="text-2xl font-bold text-yellow-600">🟡 {userCoins.toLocaleString()} C</p>
+                        <div className="p-5 bg-white border border-gray-300 rounded-lg text-center mb-6 shadow-sm">
+                          <p className="text-sm text-gray-500 mb-1 font-semibold">현재 보유 코인</p>
+                          <p className="text-3xl font-bold text-black">{userCoins.toLocaleString()} <span className="text-lg text-gray-600 font-medium">코인</span></p>
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-1">충전할 금액 (₩)</label>
@@ -612,7 +624,7 @@ export default function GalleryPage() {
                             placeholder="예: 50000" 
                             value={chargeAmount}
                             onChange={(e) => setChargeAmount(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" 
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none transition" 
                           />
                         </div>
                         <div className="flex gap-2 mb-4">
@@ -620,7 +632,7 @@ export default function GalleryPage() {
                             <button 
                               key={amt}
                               onClick={() => setChargeAmount(prev => (Number(prev) + amt).toString())}
-                              className="flex-1 py-2 bg-gray-100 text-xs font-bold rounded hover:bg-gray-200 transition whitespace-nowrap"
+                              className="flex-1 py-2 bg-white text-xs font-bold text-gray-700 border border-gray-300 rounded hover:bg-gray-50 hover:border-gray-400 transition whitespace-nowrap"
                             >
                               +{amt.toLocaleString()}
                             </button>
@@ -652,7 +664,7 @@ export default function GalleryPage() {
                               }
                             }
                           }} 
-                          className="w-full mt-4 py-3 bg-yellow-400 text-yellow-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-sm"
+                          className="w-full mt-4 py-3 bg-[#3182f6] text-white font-bold rounded-lg hover:bg-blue-600 transition shadow-sm"
                         >
                           토스페이먼츠로 충전하기
                         </button>
@@ -707,8 +719,8 @@ export default function GalleryPage() {
                   <div>
                     <h3 className="font-bold text-lg">{profileName}</h3>
                     <div className="flex items-center gap-3 mt-1">
-                      <span className="text-sm font-bold text-yellow-600">🟡 {userCoins.toLocaleString()} C</span>
-                      <button onClick={() => setProfileView('edit')} className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
+                      <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
+                      <button onClick={() => setProfileView('edit')} className="text-xs text-gray-500 font-semibold hover:text-black hover:underline transition">프로필 수정</button>
                     </div>
                   </div>
                 </div>

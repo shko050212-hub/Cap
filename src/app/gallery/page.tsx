@@ -22,8 +22,12 @@ export default function GalleryPage() {
   const [isScaleView, setIsScaleView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [profileView, setProfileView] = useState<'edit' | 'liked' | 'sell' | 'history' | 'my_art' | null>(null);
+  const [profileView, setProfileView] = useState<'edit' | 'liked' | 'sell' | 'history' | 'my_art' | 'charge' | null>(null);
   
+  // 코인 상태
+  const [userCoins, setUserCoins] = useState(0);
+  const [chargeAmount, setChargeAmount] = useState('');
+
   interface MyArtwork {
     id: number;
     title: string;
@@ -455,6 +459,7 @@ export default function GalleryPage() {
                       {profileView === 'liked' && '찜한 작품 목록'}
                       {profileView === 'history' && '구매 및 경매 현황'}
                       {profileView === 'sell' && '예술가 되기 (작품 등록)'}
+                      {profileView === 'charge' && '코인 충전'}
                     </h2>
                     <button onClick={() => setProfileView(null)} className="text-gray-500 hover:text-black">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -570,6 +575,53 @@ export default function GalleryPage() {
                       </div>
                     )}
 
+                    {profileView === 'charge' && (
+                      <div className="space-y-4">
+                        <div className="bg-yellow-50 p-4 rounded-lg text-yellow-800 text-sm mb-4 leading-relaxed">
+                          현금을 코인으로 환전하여 작품을 즉시 구매하거나 경매에 참여해보세요. (1원 = 1코인)
+                        </div>
+                        <div className="p-4 bg-gray-50 border rounded-lg text-center mb-6">
+                          <p className="text-sm text-gray-500 mb-1">현재 보유 코인</p>
+                          <p className="text-2xl font-bold text-yellow-600">🟡 {userCoins.toLocaleString()} C</p>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">충전할 금액 (₩)</label>
+                          <input 
+                            type="number" 
+                            placeholder="예: 50000" 
+                            value={chargeAmount}
+                            onChange={(e) => setChargeAmount(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" 
+                          />
+                        </div>
+                        <div className="flex gap-2 mb-4">
+                          {[10000, 50000, 100000, 1000000].map(amt => (
+                            <button 
+                              key={amt}
+                              onClick={() => setChargeAmount(prev => (Number(prev) + amt).toString())}
+                              className="flex-1 py-2 bg-gray-100 text-xs font-bold rounded hover:bg-gray-200 transition whitespace-nowrap"
+                            >
+                              +{amt.toLocaleString()}
+                            </button>
+                          ))}
+                        </div>
+                        <button 
+                          onClick={() => {
+                            if (!chargeAmount || Number(chargeAmount) <= 0) {
+                              alert('충전할 금액을 입력해주세요.');
+                              return;
+                            }
+                            setUserCoins(prev => prev + Number(chargeAmount));
+                            alert(`${Number(chargeAmount).toLocaleString()} 코인이 충전되었습니다!`);
+                            setChargeAmount('');
+                          }} 
+                          className="w-full mt-4 py-3 bg-yellow-400 text-yellow-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-sm"
+                        >
+                          코인 충전하기
+                        </button>
+                      </div>
+                    )}
+
                     {profileView === 'my_art' && (
                       <div className="space-y-4">
                         {myArtworks.length > 0 ? (
@@ -617,7 +669,10 @@ export default function GalleryPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">{profileName}</h3>
-                    <button onClick={() => setProfileView('edit')} className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-sm font-bold text-yellow-600">🟡 {userCoins.toLocaleString()} C</span>
+                      <button onClick={() => setProfileView('edit')} className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
+                    </div>
                   </div>
                 </div>
 
@@ -630,6 +685,10 @@ export default function GalleryPage() {
                   <button onClick={() => setProfileView('my_art')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
                     <span>내 예술품 보기</span>
                     {myArtworks.length > 0 && <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">{myArtworks.length}</span>}
+                  </button>
+                  <button onClick={() => setProfileView('charge')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
+                    <span>코인 충전하기</span>
+                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-bold">충전</span>
                   </button>
                   <button onClick={() => setProfileView('history')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
                     구매내역 및 경매 현황

@@ -193,11 +193,9 @@ export default function GalleryPage() {
         {/* 프로필 버튼 */}
         <button 
           onClick={() => setIsProfileOpen(true)}
-          className="bg-white/90 backdrop-blur rounded-full w-14 h-14 flex items-center justify-center shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-110 transition-transform group"
+          className="bg-white/90 backdrop-blur rounded-full w-14 h-14 flex items-center justify-center shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-110 transition-transform group overflow-hidden"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
-          </svg>
+          <img src="/mascot.png" alt="Profile" className="w-8 h-8 object-contain drop-shadow-sm" />
         </button>
 
         {/* 찜하기 하트 버튼 */}
@@ -390,8 +388,8 @@ export default function GalleryPage() {
               <div className="p-6 flex-1 overflow-y-auto space-y-8">
                 {/* 프로필 정보 */}
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-200 overflow-hidden">
+                    <img src="/mascot.png" alt="Profile" className="w-10 h-10 object-contain drop-shadow-sm" />
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">관람객 님</h3>

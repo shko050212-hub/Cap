@@ -24,11 +24,15 @@ export async function POST(request: Request) {
       { expiresIn: '8h' }
     );
 
-    // 감사 로그
-    await db.query(
-      `INSERT INTO admin_audit_logs (admin_id, action_type, target_domain, target_id, ip_address) VALUES ($1, 'LOGIN', 'admin_users', $2, $3)`,
-      [admin.id, admin.id, 'unknown']
-    );
+    // 감사 로그 (실패해도 로그인 차단 안 함)
+    try {
+      await db.query(
+        `INSERT INTO admin_audit_logs (admin_id, action_type, target_domain, target_id, ip_address) VALUES ($1, 'LOGIN', 'admin_users', $2, $3)`,
+        [admin.id, admin.id, 'unknown']
+      );
+    } catch (logErr) {
+      console.error('Audit log failed (non-critical):', logErr);
+    }
 
     const response = NextResponse.json({ message: 'Login successful', role: admin.role });
     response.cookies.set('admin_token', token, {

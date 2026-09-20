@@ -236,17 +236,17 @@ export default function MuseumLobby() {
         <motion.div
           animate={isAuthenticated ? { x: '-100%' } : { x: 0 }}
           transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-1/2 h-full bg-[#1a1a1a] border-r border-gray-800 shadow-2xl flex items-center justify-end z-10"
+          className="w-1/2 h-full bg-[#1a1a1a] border-r border-white shadow-2xl flex items-center justify-end z-10"
         >
-          <div className="w-4 h-32 bg-gray-600 rounded-l-md mr-2"></div>
+          <div className="w-4 h-32 bg-white rounded-l-md mr-2"></div>
         </motion.div>
         
         <motion.div
           animate={isAuthenticated ? { x: '100%' } : { x: 0 }}
           transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-1/2 h-full bg-[#1a1a1a] border-l border-gray-800 shadow-2xl flex items-center justify-start z-10"
+          className="w-1/2 h-full bg-[#1a1a1a] border-l border-white shadow-2xl flex items-center justify-start z-10"
         >
-          <div className="w-4 h-32 bg-gray-600 rounded-r-md ml-2"></div>
+          <div className="w-4 h-32 bg-white rounded-r-md ml-2"></div>
         </motion.div>
         <div className="absolute inset-0 bg-white flex flex-col items-center justify-center">
           <h2 className="text-4xl font-light text-gray-800 tracking-widest">ARTMART GALLERY</h2>
@@ -389,6 +389,7 @@ export default function MuseumLobby() {
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
+                      <p className="text-xs text-gray-500 mt-1">※ 특수문자 포함 8자리 이상 기입</p>
                     </div>
 
                     {/* 신장 복구 */}

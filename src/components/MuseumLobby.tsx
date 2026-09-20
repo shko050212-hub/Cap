@@ -389,7 +389,9 @@ export default function MuseumLobby() {
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">비밀번호</label>
                       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border-b-2 border-gray-200 focus:border-black outline-none py-1 transition-colors text-black" />
-                      <p className="text-xs text-gray-500 mt-1">※ 특수문자 포함 8자리 이상 기입</p>
+                      <p className={`text-xs mt-1 font-bold ${password.length > 0 && !/^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/.test(password) ? 'text-red-500' : 'text-gray-500'}`}>
+                        ※ 특수문자 포함 8자리 이상 기입
+                      </p>
                     </div>
 
                     {/* 신장 복구 */}

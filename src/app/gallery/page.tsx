@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { loadTossPayments } from '@tosspayments/payment-sdk';
 
 // 임시 작품 데이터 목록 (판매방식, 가격, 사이즈 추가)
 const artworks = [
@@ -27,6 +28,20 @@ export default function GalleryPage() {
   // 코인 상태
   const [userCoins, setUserCoins] = useState(0);
   const [chargeAmount, setChargeAmount] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const chargeAmt = params.get('charge_success');
+      if (chargeAmt) {
+        setUserCoins(prev => prev + Number(chargeAmt));
+        alert(`${Number(chargeAmt).toLocaleString()} 코인 충전이 정상적으로 완료되었습니다!`);
+        window.history.replaceState({}, '', '/gallery');
+        setProfileView('charge');
+        setIsProfileOpen(true);
+      }
+    }
+  }, []);
 
   interface MyArtwork {
     id: number;
@@ -606,18 +621,33 @@ export default function GalleryPage() {
                           ))}
                         </div>
                         <button 
-                          onClick={() => {
+                          onClick={async () => {
                             if (!chargeAmount || Number(chargeAmount) <= 0) {
                               alert('충전할 금액을 입력해주세요.');
                               return;
                             }
-                            setUserCoins(prev => prev + Number(chargeAmount));
-                            alert(`${Number(chargeAmount).toLocaleString()} 코인이 충전되었습니다!`);
-                            setChargeAmount('');
+                            try {
+                              const tossPayments = await loadTossPayments('test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm');
+                              const amount = Number(chargeAmount);
+                              const orderId = 'ORDER-' + Date.now() + Math.random().toString(36).substring(2, 7);
+                              
+                              await tossPayments.requestPayment('카드', {
+                                amount,
+                                orderId,
+                                orderName: '아트마트 코인 충전',
+                                customerName: profileName,
+                                successUrl: window.location.origin + '/payments/success?amount=' + amount,
+                                failUrl: window.location.origin + '/payments/fail',
+                              });
+                            } catch (err: any) {
+                              if (err.code !== 'USER_CANCEL') {
+                                alert('결제 연동 중 오류가 발생했습니다.');
+                              }
+                            }
                           }} 
                           className="w-full mt-4 py-3 bg-yellow-400 text-yellow-900 font-bold rounded-lg hover:bg-yellow-500 transition shadow-sm"
                         >
-                          코인 충전하기
+                          토스페이먼츠로 충전하기
                         </button>
                       </div>
                     )}

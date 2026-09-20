@@ -641,7 +641,8 @@ export default function GalleryPage() {
                               });
                             } catch (err: any) {
                               if (err.code !== 'USER_CANCEL') {
-                                alert('결제 연동 중 오류가 발생했습니다.');
+                                alert(`결제 연동 중 오류가 발생했습니다: ${err.message || err.code || err}`);
+                                console.error('Toss Payments Error:', err);
                               }
                             }
                           }} 

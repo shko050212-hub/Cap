@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   try {
     const { paymentKey, orderId, amount } = await req.json();
 
-    const secretKey = 'test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6';
+    const secretKey = 'test_sk_ex6BJGQOVDONlDoKmN1a3W4w2zNb';
     const encryptedSecretKey = Buffer.from(secretKey + ':').toString('base64');
 
     const response = await fetch(`https://api.tosspayments.com/v1/payments/${paymentKey}`, {

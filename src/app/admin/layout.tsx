@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 
 const navItems = [
   { href: '/admin', label: '대시보드', icon: '◈' },
+  { href: '/admin/items', label: '상품 보기', icon: '▤' },
   { href: '/admin/artworks', label: '전체 작품 관리', icon: '◻' },
   { href: '/admin/auctions', label: '경매 모니터링', icon: '◇' },
   { href: '/admin/users', label: '회원 관리', icon: '○' },

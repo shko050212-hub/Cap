@@ -22,7 +22,16 @@ export default function GalleryPage() {
   const [isScaleView, setIsScaleView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [profileView, setProfileView] = useState<'edit' | 'liked' | 'sell' | 'history' | null>(null);
+  const [profileView, setProfileView] = useState<'edit' | 'liked' | 'sell' | 'history' | 'my_art' | null>(null);
+  
+  interface MyArtwork {
+    id: number;
+    title: string;
+    price: number;
+    src: string;
+    status: 'pending' | 'approved';
+  }
+  const [myArtworks, setMyArtworks] = useState<MyArtwork[]>([]);
   
   // 프로필 정보 상태
   const [profileName, setProfileName] = useState('관람객 님');
@@ -61,11 +70,21 @@ export default function GalleryPage() {
       return;
     }
     alert('작품 등록 신청이 완료되었습니다.\n관리자의 승인을 기다리는 중입니다. 승인이 완료되면 갤러리에 정식으로 등록되어 다른 사용자들에게 보여집니다.');
+    
+    const newArt: MyArtwork = {
+      id: Date.now(),
+      title: sellTitle,
+      price: Number(sellPrice),
+      src: sellImage,
+      status: 'pending'
+    };
+    setMyArtworks(prev => [...prev, newArt]);
+
     // 폼 초기화 및 닫기
     setSellTitle('');
     setSellPrice('');
     setSellImage(null);
-    setProfileView(null);
+    setProfileView('my_art');
   };
   
   const closeProfile = () => {
@@ -550,6 +569,27 @@ export default function GalleryPage() {
                         구매 및 경매 내역이 없습니다.
                       </div>
                     )}
+
+                    {profileView === 'my_art' && (
+                      <div className="space-y-4">
+                        {myArtworks.length > 0 ? (
+                          myArtworks.map(art => (
+                            <div key={art.id} className="flex gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                              <img src={art.src} className="w-16 h-16 object-cover rounded-lg" />
+                              <div className="flex-1">
+                                <p className="font-bold">{art.title}</p>
+                                <p className="text-sm font-bold mt-1 text-black">희망가: ₩{art.price.toLocaleString()}</p>
+                                <div className="mt-2 inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded">
+                                  {art.status === 'pending' ? '승인 대기중' : '등록 완료'}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-10 text-gray-500">등록한 작품이 없습니다.</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -586,6 +626,10 @@ export default function GalleryPage() {
                   <button onClick={() => setProfileView('liked')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
                     <span>찜한 작품 목록</span>
                     <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">{Object.values(liked).filter(Boolean).length}</span>
+                  </button>
+                  <button onClick={() => setProfileView('my_art')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
+                    <span>내 예술품 보기</span>
+                    {myArtworks.length > 0 && <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">{myArtworks.length}</span>}
                   </button>
                   <button onClick={() => setProfileView('history')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
                     구매내역 및 경매 현황

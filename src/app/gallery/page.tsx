@@ -264,7 +264,7 @@ export default function GalleryPage() {
           onClick={() => setIsProfileOpen(true)}
           className="bg-white/90 backdrop-blur rounded-full w-14 h-14 flex items-center justify-center shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-110 transition-transform group overflow-hidden"
         >
-          <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+          <img src={profileImage} alt="Profile" className="w-full h-full object-contain p-1" />
         </button>
 
         {/* 찜하기 하트 버튼 */}
@@ -465,7 +465,7 @@ export default function GalleryPage() {
                       <div className="space-y-4">
                         <div className="flex flex-col items-center mb-6">
                           <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-md border overflow-hidden mb-4">
-                            <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                            <img src={profileImage} alt="Profile" className="w-full h-full object-contain p-1" />
                           </div>
                           <input 
                             type="file" 
@@ -613,7 +613,7 @@ export default function GalleryPage() {
                 {/* 프로필 정보 */}
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-200 overflow-hidden">
-                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover drop-shadow-sm" />
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-contain p-1 drop-shadow-sm" />
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">{profileName}</h3>

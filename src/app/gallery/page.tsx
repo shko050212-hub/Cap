@@ -13,7 +13,7 @@ const artworks = [
     year: '2026',
     type: 'Digital Art',
     desc: '경매 테스트용 더미 작품입니다.',
-    src: `https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1000&auto=format&fit=crop&sig=${i}`, // sig 추가로 이미지 캐시 방지 (선택)
+    src: `https://picsum.photos/seed/auction${i}/1000/1000`, // 고유 이미지
     saleType: 'auction',
     price: 100,
     width: 100,
@@ -26,7 +26,7 @@ const artworks = [
     year: '2026',
     type: 'Digital Art',
     desc: '일반 구매 테스트용 더미 작품입니다.',
-    src: `https://images.unsplash.com/photo-1579783900882-c0d9f07b1985?q=80&w=1000&auto=format&fit=crop&sig=${i}`,
+    src: `https://picsum.photos/seed/sale${i}/1000/1000`, // 고유 이미지
     saleType: 'sale',
     price: 100,
     width: 100,

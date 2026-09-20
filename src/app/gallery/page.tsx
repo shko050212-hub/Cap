@@ -187,8 +187,8 @@ export default function GalleryPage() {
         </AnimatePresence>
       </div>
 
-      {/* 하단 좌측: 찜하기 및 구매 버튼 */}
-      <div className="absolute bottom-8 left-8 z-50 flex gap-4">
+      {/* 하단 우측: 찜하기 및 구매 버튼 */}
+      <div className="absolute bottom-8 right-8 z-50 flex gap-4">
         {/* 찜하기 하트 버튼 */}
         <button 
           onClick={toggleLike}
@@ -319,7 +319,7 @@ export default function GalleryPage() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-24 right-8 z-40 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.4)] w-80 border border-gray-100"
+            className="absolute bottom-24 left-8 z-40 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.4)] w-80 border border-gray-100"
           >
             <div className="flex items-center mb-4 pb-3 border-b border-gray-200">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-800 mr-2">
@@ -335,18 +335,18 @@ export default function GalleryPage() {
             </div>
             
             {/* 말풍선 꼬리 */}
-            <div className="absolute -bottom-3 right-8 w-6 h-6 bg-white/95 rotate-45 border-r border-b border-gray-100"></div>
+            <div className="absolute -bottom-3 left-8 w-6 h-6 bg-white/95 rotate-45 border-r border-b border-gray-100"></div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 우측 하단 도슨트 버튼 */}
+      {/* 좌측 하단 도슨트 버튼 */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1.5, duration: 0.8, type: 'spring' }}
         onClick={() => setIsDocentOpen(!isDocentOpen)}
-        className="absolute bottom-8 right-8 z-50 cursor-pointer hover:scale-110 transition-transform bg-white/90 backdrop-blur rounded-full px-5 py-3 shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 group"
+        className="absolute bottom-8 left-8 z-50 cursor-pointer hover:scale-110 transition-transform bg-white/90 backdrop-blur rounded-full px-5 py-3 shadow-[0_5px_15px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 group"
       >
         <img src="/mascot.png" alt="Docent Mascot" className="w-8 h-8 object-contain drop-shadow-md" />
       </motion.div>

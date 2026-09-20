@@ -245,10 +245,10 @@ export default function GalleryPage() {
                 </div>
                 
                 {/* 사이즈 정보 태그 */}
-                <div className="absolute -left-20 top-1/2 -translate-y-1/2 bg-black/80 text-white px-3 py-2 rounded text-sm whitespace-nowrap">
+                <div className="absolute left-1/2 -top-12 -translate-x-1/2 bg-black/80 text-white px-3 py-2 rounded text-sm whitespace-nowrap shadow-md">
                   가로 {currentArtwork.width}cm
                 </div>
-                <div className="absolute left-1/2 -bottom-10 -translate-x-1/2 bg-black/80 text-white px-3 py-2 rounded text-sm whitespace-nowrap">
+                <div className="absolute -left-24 top-1/2 -translate-y-1/2 bg-black/80 text-white px-3 py-2 rounded text-sm whitespace-nowrap shadow-md">
                   세로 {currentArtwork.height}cm
                 </div>
               </motion.div>

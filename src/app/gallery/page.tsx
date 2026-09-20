@@ -22,6 +22,12 @@ export default function GalleryPage() {
   const [isScaleView, setIsScaleView] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [profileView, setProfileView] = useState<'edit' | 'liked' | 'sell' | 'history' | null>(null);
+  
+  const closeProfile = () => {
+    setIsProfileOpen(false);
+    setTimeout(() => setProfileView(null), 300);
+  };
   
   // 입찰 상태 관리
   const [bidStep, setBidStep] = useState<'initial' | 'input' | 'complete'>('initial');
@@ -368,9 +374,103 @@ export default function GalleryPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsProfileOpen(false)}
+              onClick={closeProfile}
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150]"
             />
+            <AnimatePresence>
+              {profileView && (
+                <motion.div
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                  className="fixed top-0 right-80 h-full w-96 bg-gray-50 shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-[190] border-l border-gray-200 flex flex-col"
+                >
+                  <div className="p-6 border-b flex justify-between items-center bg-white shadow-sm z-10">
+                    <h2 className="text-xl font-bold">
+                      {profileView === 'edit' && '프로필 수정'}
+                      {profileView === 'liked' && '찜한 작품 목록'}
+                      {profileView === 'history' && '구매 및 경매 현황'}
+                      {profileView === 'sell' && '예술가 되기 (작품 등록)'}
+                    </h2>
+                    <button onClick={() => setProfileView(null)} className="text-gray-500 hover:text-black">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                  </div>
+                  <div className="p-6 flex-1 overflow-y-auto">
+                    {profileView === 'edit' && (
+                      <div className="space-y-4">
+                        <div className="flex flex-col items-center mb-6">
+                          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-md border overflow-hidden mb-4">
+                            <img src="/mascot.png" alt="Profile" className="w-16 h-16 object-contain" />
+                          </div>
+                          <button className="px-4 py-2 bg-black text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition">사진 변경</button>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">이름</label>
+                          <input type="text" defaultValue="관람객 님" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black focus:ring-1 focus:ring-black outline-none" />
+                        </div>
+                        <button className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">저장하기</button>
+                      </div>
+                    )}
+                    
+                    {profileView === 'liked' && (
+                      <div className="space-y-4">
+                        {Object.keys(liked).filter(id => liked[Number(id)]).length > 0 ? (
+                          Object.keys(liked).filter(id => liked[Number(id)]).map(id => {
+                            const art = artworks.find(a => a.id === Number(id));
+                            if (!art) return null;
+                            return (
+                              <div key={id} className="flex gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                                <img src={art.src} className="w-16 h-16 object-cover rounded-lg" />
+                                <div>
+                                  <p className="font-bold">{art.title}</p>
+                                  <p className="text-xs text-gray-500">{art.artist}</p>
+                                  <p className="text-sm font-bold mt-1 text-black">₩{art.price.toLocaleString()}</p>
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-10 text-gray-500">찜한 작품이 없습니다.</div>
+                        )}
+                      </div>
+                    )}
+
+                    {profileView === 'sell' && (
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 p-4 rounded-lg text-blue-800 text-sm mb-4">
+                          작품을 등록하고 나만의 갤러리를 시작해보세요.
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">작품 제목</label>
+                          <input type="text" placeholder="작품명 입력" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">희망 가격 (₩)</label>
+                          <input type="number" placeholder="예: 50000" className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-black outline-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">작품 사진 업로드</label>
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                            <span>클릭하여 사진 선택</span>
+                          </div>
+                        </div>
+                        <button className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">작품 등록 신청</button>
+                      </div>
+                    )}
+                    
+                    {profileView === 'history' && (
+                      <div className="text-center py-10 text-gray-500">
+                        구매 및 경매 내역이 없습니다.
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -380,7 +480,7 @@ export default function GalleryPage() {
             >
               <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                 <h2 className="text-xl font-bold">내 프로필</h2>
-                <button onClick={() => setIsProfileOpen(false)} className="text-gray-500 hover:text-black">
+                <button onClick={closeProfile} className="text-gray-500 hover:text-black transition">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
               </div>
@@ -393,20 +493,20 @@ export default function GalleryPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">관람객 님</h3>
-                    <button className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
+                    <button onClick={() => setProfileView('edit')} className="text-xs text-blue-600 font-semibold hover:underline">프로필 수정</button>
                   </div>
                 </div>
 
                 {/* 메뉴 리스트 */}
                 <div className="space-y-2">
-                  <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
+                  <button onClick={() => setProfileView('liked')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700 flex items-center justify-between">
                     <span>찜한 작품 목록</span>
                     <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">{Object.values(liked).filter(Boolean).length}</span>
                   </button>
-                  <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
+                  <button onClick={() => setProfileView('history')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
                     구매내역 및 경매 현황
                   </button>
-                  <button className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
+                  <button onClick={() => setProfileView('sell')} className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium text-gray-700">
                     예술가 되기 (미술품 판매)
                   </button>
                 </div>

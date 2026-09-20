@@ -267,7 +267,10 @@ export default function MuseumLobby() {
             >
               {mode === 'LOGIN' && (
                 <>
-                  <h2 className="text-2xl font-bold mb-8 text-center text-gray-900">도슨트 키오스크</h2>
+                  <div className="flex flex-col items-center mb-8">
+                    <img src="/mascot.png" alt="Mascot" className="w-16 h-16 object-contain mb-2 drop-shadow-md" />
+                    <h2 className="text-2xl font-bold text-gray-900">도슨트 키오스크</h2>
+                  </div>
                   <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700">이메일</label>

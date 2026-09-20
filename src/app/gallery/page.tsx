@@ -49,6 +49,7 @@ export default function GalleryPage() {
     price: number;
     src: string;
     status: 'pending' | 'approved';
+    saleType: 'sale' | 'auction';
   }
   const [myArtworks, setMyArtworks] = useState<MyArtwork[]>([]);
   
@@ -62,6 +63,7 @@ export default function GalleryPage() {
   const [sellTitle, setSellTitle] = useState('');
   const [sellPrice, setSellPrice] = useState('');
   const [sellImage, setSellImage] = useState<string | null>(null);
+  const [sellType, setSellType] = useState<'sale' | 'auction'>('sale');
   const sellImageInputRef = useRef<HTMLInputElement>(null);
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +97,8 @@ export default function GalleryPage() {
       title: sellTitle,
       price: Number(sellPrice),
       src: sellImage,
-      status: 'pending'
+      status: 'pending',
+      saleType: sellType
     };
     setMyArtworks(prev => [...prev, newArt]);
 
@@ -103,6 +106,7 @@ export default function GalleryPage() {
     setSellTitle('');
     setSellPrice('');
     setSellImage(null);
+    setSellType('sale');
     setProfileView('my_art');
   };
   
@@ -172,10 +176,14 @@ export default function GalleryPage() {
   
   const handleBidSubmit = () => {
     if (Number(bidAmount) < currentArtwork.price) {
-      setBidError('이 금액으로는 입찰이 불가합니다.');
+      setBidError('최소 시작가 이상의 금액을 입력해주세요.');
+    } else if (Number(bidAmount) > userCoins) {
+      setBidError('보유하신 코인이 부족하십니다.');
     } else {
+      setUserCoins(prev => prev - Number(bidAmount));
       setBidError('');
       setBidStep('complete');
+      alert('입찰이 완료되었습니다. 호가 금액만큼 코인이 사용 정지됩니다.');
     }
   };
 
@@ -348,10 +356,9 @@ export default function GalleryPage() {
                 {currentArtwork.saleType === 'auction' ? (
                   <div className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
                     <p className="font-bold mb-2 text-black">경매 방식 안내</p>
-                    <ul className="list-disc pl-4 space-y-1">
-                      <li>작가가 설정한 최소 가격부터 호가가 시작됩니다.</li>
-                      <li>새로운 호가 입력 시 1시간의 유예 시간이 주어집니다.</li>
-                      <li>1시간 동안 추가 호가가 없으면 최종 낙찰됩니다.</li>
+                    <ul className="list-disc pl-4 space-y-1 text-xs">
+                      <li>본 거래 방식은 10분을 간격으로 더 큰 호가가 없을 경우 낙찰로 판단 되게 됩니다.</li>
+                      <li>추가로 보유하신 코인은 호가시 호가 금액 만큼 사용 정지되며 더 큰 호가가 나올 시 사용정지가 풀리게 됩니다.</li>
                     </ul>
                     
                     {bidStep === 'initial' && (
@@ -408,8 +415,19 @@ export default function GalleryPage() {
                           <span className="text-xs font-semibold text-gray-500">내 보유 코인</span>
                           <span className="text-sm font-bold text-black">{userCoins.toLocaleString()} 코인</span>
                         </div>
-                        <button onClick={() => setBidStep('complete')} className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">
-                          ₩{currentArtwork.price.toLocaleString()} 결제하기
+                        <button 
+                          onClick={() => {
+                            if (userCoins >= currentArtwork.price) {
+                              setUserCoins(prev => prev - currentArtwork.price);
+                              alert('구매가 완료되었습니다.');
+                              setBidStep('complete');
+                            } else {
+                              alert('보유하신 코인이 부족하십니다.');
+                            }
+                          }}
+                          className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition"
+                        >
+                          ₩{currentArtwork.price.toLocaleString()} 구매하기
                         </button>
                       </div>
                     )}
@@ -566,7 +584,27 @@ export default function GalleryPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-1">희망 가격 (₩)</label>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">판매 방식</label>
+                          <div className="flex gap-4 mb-2 mt-2">
+                            <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                              <input type="radio" name="sellType" checked={sellType === 'sale'} onChange={() => setSellType('sale')} className="accent-black" /> 
+                              일반 구매
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer font-medium text-gray-700">
+                              <input type="radio" name="sellType" checked={sellType === 'auction'} onChange={() => setSellType('auction')} className="accent-black" /> 
+                              경매
+                            </label>
+                          </div>
+                          {sellType === 'auction' && (
+                            <p className="text-xs text-red-600 font-bold bg-red-50 p-2 rounded border border-red-100 mt-2">
+                              본 거래 방식은 10분을 간격으로 더 큰 호가가 없을 경우 낙찰로 판단 되게 됩니다.
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-1">
+                            {sellType === 'auction' ? '경매 시작가 (코인)' : '판매 가격 (코인)'}
+                          </label>
                           <input 
                             type="number" 
                             placeholder="예: 500000" 

@@ -823,6 +823,7 @@ export default function GalleryPage() {
                         {myTransactions.length > 0 ? (
                           myTransactions.map(tx => {
                             const isAuction = tx.type === 'bid';
+                            let timeLeftStr = '';
                             let isCompleted = !isAuction;
                             if (isAuction && tx.auction_end_time) {
                               const timeLeftMs = Number(tx.auction_end_time) - currentTime;

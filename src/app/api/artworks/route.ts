@@ -25,6 +25,11 @@ export async function POST(request: Request) {
       [user.userId, title, price, src, saleType]
     );
     
+    await db.query(
+      'INSERT INTO artwork_consignments (seller_id, title, price, image_url, sale_type, status) VALUES ($1, $2, $3, $4, $5, $6)',
+      [user.userId, title, price, src, saleType, 'REQUESTED']
+    );
+    
     return NextResponse.json({ message: 'Artwork created', artwork: res.rows[0] });
   } catch (err) {
     console.error(err);

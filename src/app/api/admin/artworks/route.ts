@@ -73,6 +73,15 @@ export async function POST(request: Request) {
       [newStatus, reject_reason || null, consignment_id]
     );
 
+    let artStatus = 'pending';
+    if (newStatus === 'EXHIBITED') artStatus = 'approved';
+    if (newStatus === 'REJECTED') artStatus = 'rejected';
+    
+    await db.query(
+      'UPDATE artworks SET status = $1 WHERE user_id = $2 AND title = $3',
+      [artStatus, before.rows[0].seller_id, before.rows[0].title]
+    );
+
     // 감사 로그
     await db.query(
       `INSERT INTO admin_audit_logs (admin_id, action_type, target_domain, target_id, before_state, after_state, ip_address)

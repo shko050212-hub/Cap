@@ -823,7 +823,7 @@ export default function GalleryPage() {
                         {myTransactions.length > 0 ? (
                           myTransactions.map(tx => {
                             const isAuction = tx.type === 'bid';
-                            let timeLeftStr = '';
+                            let isCompleted = !isAuction;
                             if (isAuction && tx.auction_end_time) {
                               const timeLeftMs = Number(tx.auction_end_time) - currentTime;
                               if (timeLeftMs > 0) {
@@ -831,26 +831,51 @@ export default function GalleryPage() {
                                 const s = Math.floor((timeLeftMs % 60000) / 1000);
                                 timeLeftStr = `남은 시간: ${m}분 ${s.toString().padStart(2, '0')}초`;
                               } else {
-                                timeLeftStr = '경매 종료';
+                                timeLeftStr = '경매 종료 (낙찰)';
+                                isCompleted = true;
                               }
                             }
                             return (
-                              <div key={tx.id} className="flex gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-                                <img src={tx.artwork_src} className="w-16 h-16 object-cover rounded-lg" />
-                                <div className="flex-1">
-                                  <div className="flex justify-between items-start">
-                                    <p className="font-bold text-gray-900">{tx.artwork_title}</p>
-                                    <span className={`text-xs font-bold px-2 py-1 rounded ${isAuction ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                      {isAuction ? '경매 입찰' : '일반 구매'}
-                                    </span>
+                              <div key={tx.id} className="flex flex-col p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                                <div className="flex gap-4">
+                                  <img src={tx.artwork_src} className="w-16 h-16 object-cover rounded-lg" />
+                                  <div className="flex-1">
+                                    <div className="flex justify-between items-start">
+                                      <p className="font-bold text-gray-900">{tx.artwork_title}</p>
+                                      <span className={`text-xs font-bold px-2 py-1 rounded ${isAuction ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                        {isAuction ? '경매 입찰' : '일반 구매'}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm font-bold mt-1 text-black">
+                                      {isAuction ? '입찰가:' : '구매가:'} ₩{tx.amount.toLocaleString()}
+                                    </p>
+                                    {isAuction && (
+                                      <p className={`text-xs font-bold mt-1 ${isCompleted ? 'text-gray-500' : 'text-red-500'}`}>{timeLeftStr}</p>
+                                    )}
                                   </div>
-                                  <p className="text-sm font-bold mt-1 text-black">
-                                    {isAuction ? '입찰가:' : '구매가:'} ₩{tx.amount.toLocaleString()}
-                                  </p>
-                                  {isAuction && (
-                                    <p className="text-xs font-bold text-red-500 mt-1">{timeLeftStr}</p>
-                                  )}
                                 </div>
+                                {isCompleted && (
+                                  <div className="mt-3 pt-3 border-t border-gray-100">
+                                    {tx.address ? (
+                                      <div className="bg-gray-50 p-2.5 rounded text-xs text-gray-700 font-medium">
+                                        <span className="font-bold mr-1">배송지:</span> {tx.address}
+                                      </div>
+                                    ) : (
+                                      <button 
+                                        onClick={() => {
+                                          const addr = prompt('배송 받으실 주소를 입력해주세요:');
+                                          if (addr) {
+                                            setMyTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, address: addr } : t));
+                                            alert('배송지가 정상적으로 등록되었습니다.');
+                                          }
+                                        }}
+                                        className="w-full py-2.5 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition shadow-sm"
+                                      >
+                                        주소 추가하기
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             );
                           })

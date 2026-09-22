@@ -21,12 +21,7 @@ export async function POST(request: Request) {
     const { title, price, src, saleType } = await request.json();
     
     const res = await db.query(
-      'INSERT INTO artworks (user_id, title, price, src, sale_type) VALUES ($1, $2, $3, $4, $5) RETURNING *', 
-      [user.userId, title, price, src, saleType]
-    );
-    
-    await db.query(
-      'INSERT INTO artwork_consignments (seller_id, title, price, image_url, sale_type, status) VALUES ($1, $2, $3, $4, $5, $6)',
+      'INSERT INTO artwork_consignments (seller_id, title, price, image_url, sale_type, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING consignment_id as id, title, price, image_url as src, sale_type, status',
       [user.userId, title, price, src, saleType, 'REQUESTED']
     );
     

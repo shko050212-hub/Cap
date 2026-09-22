@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     if (userRes.rows.length === 0) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     const userData = userRes.rows[0];
 
-    const artworksRes = await db.query('SELECT * FROM artworks WHERE user_id = $1 ORDER BY id DESC', [user.userId]);
+    const artworksRes = await db.query('SELECT consignment_id as id, title, price, image_url as src, sale_type, status FROM artwork_consignments WHERE seller_id = $1 ORDER BY consignment_id DESC', [user.userId]);
     const transRes = await db.query('SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC', [user.userId]);
     
     return NextResponse.json({

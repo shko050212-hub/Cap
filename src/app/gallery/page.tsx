@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { loadTossPayments } from '@tosspayments/payment-sdk';
-
+import DaumPostcode from 'react-daum-postcode';
 // 임시 작품 데이터 목록 (판매방식, 가격, 사이즈 추가)
 const artworks = [
   ...Array.from({ length: 15 }).map((_, i) => ({
@@ -97,6 +97,9 @@ export default function GalleryPage() {
   const [sellImage, setSellImage] = useState<string | null>(null);
   const [sellType, setSellType] = useState<'sale' | 'auction'>('sale');
   const sellImageInputRef = useRef<HTMLInputElement>(null);
+
+  // 주소 검색 모달 상태
+  const [postcodeOpenTxId, setPostcodeOpenTxId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -862,18 +865,33 @@ export default function GalleryPage() {
                                         <span className="font-bold mr-1">배송지:</span> {tx.address}
                                       </div>
                                     ) : (
-                                      <button 
-                                        onClick={() => {
-                                          const addr = prompt('배송 받으실 주소를 입력해주세요:');
-                                          if (addr) {
-                                            setMyTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, address: addr } : t));
-                                            alert('배송지가 정상적으로 등록되었습니다.');
-                                          }
-                                        }}
-                                        className="w-full py-2.5 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition shadow-sm"
-                                      >
-                                        주소 추가하기
-                                      </button>
+                                      <>
+                                        {postcodeOpenTxId === tx.id ? (
+                                          <div className="border border-gray-200 rounded overflow-hidden">
+                                            <div className="bg-gray-100 flex justify-end">
+                                              <button onClick={() => setPostcodeOpenTxId(null)} className="text-xs px-3 py-1.5 font-bold text-gray-600 hover:text-black">닫기 ✕</button>
+                                            </div>
+                                            <DaumPostcode 
+                                              onComplete={(data) => {
+                                                const fullAddress = data.address + (data.buildingName ? ` (${data.buildingName})` : '');
+                                                const detailAddr = prompt(`[기본 주소] ${fullAddress}\n나머지 상세 주소를 입력해주세요:`) || '';
+                                                const finalAddr = `${fullAddress} ${detailAddr}`.trim();
+                                                setMyTransactions(prev => prev.map(t => t.id === tx.id ? { ...t, address: finalAddr } : t));
+                                                setPostcodeOpenTxId(null);
+                                                alert('배송지가 정상적으로 등록되었습니다.');
+                                              }}
+                                              autoClose={false}
+                                            />
+                                          </div>
+                                        ) : (
+                                          <button 
+                                            onClick={() => setPostcodeOpenTxId(tx.id)}
+                                            className="w-full py-2.5 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition shadow-sm"
+                                          >
+                                            우편번호로 주소 찾기
+                                          </button>
+                                        )}
+                                      </>
                                     )}
                                   </div>
                                 )}

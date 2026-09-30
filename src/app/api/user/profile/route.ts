@@ -52,3 +52,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const user = getUserFromHeader(request);
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    await db.query('BEGIN');
+    
+    // 외래키 무결성을 위해 관련된 모든 데이터를 삭제 (CASCADE가 완벽하지 않을 수 있으므로 명시적 삭제)
+    await db.query('DELETE FROM transactions WHERE user_id = $1', [user.userId]);
+    await db.query('DELETE FROM artwork_consignments WHERE seller_id = $1', [user.userId]);
+    await db.query('DELETE FROM artworks WHERE user_id = $1', [user.userId]);
+    await db.query('DELETE FROM users WHERE id = $1', [user.userId]);
+    
+    await db.query('COMMIT');
+    
+    return NextResponse.json({ message: 'Account and related data successfully deleted' });
+  } catch (err) {
+    await db.query('ROLLBACK');
+    console.error(err);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}

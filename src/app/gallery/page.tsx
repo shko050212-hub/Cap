@@ -101,6 +101,12 @@ export default function GalleryPage() {
   // 주소 검색 모달 상태
   const [postcodeOpenTxId, setPostcodeOpenTxId] = useState<number | null>(null);
 
+  // 회원탈퇴 관련 상태
+  const [userEmail, setUserEmail] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteVerificationCode, setDeleteVerificationCode] = useState('');
+  const [isDeleteCodeSent, setIsDeleteCodeSent] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
@@ -117,6 +123,7 @@ export default function GalleryPage() {
           }
           if (data.user.profile_image) setProfileImage(data.user.profile_image);
           if (data.user.coins) setUserCoins(data.user.coins);
+          if (data.user.email) setUserEmail(data.user.email);
           
           if (data.artworks && data.artworks.length > 0) {
             setMyArtworks(data.artworks.map((a: any) => ({
@@ -221,6 +228,64 @@ export default function GalleryPage() {
       }, 500);
     } else {
       setIsProfileOpen(false);
+    }
+  };
+  
+  const handleDeleteAccountRequest = async () => {
+    if (!userEmail) {
+      alert('사용자 이메일 정보를 불러올 수 없습니다.');
+      return;
+    }
+    const confirmDelete = window.confirm('정말 회원탈퇴를 진행하시겠습니까? 인증 후 모든 정보가 즉시 삭제됩니다.');
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail })
+      });
+      if (res.ok) {
+        setIsDeleteCodeSent(true);
+        alert('이메일로 인증번호가 발송되었습니다. 하단 입력창에 코드를 입력해주세요.');
+      } else {
+        const data = await res.json();
+        alert(data.error || '인증번호 발송 실패');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버 오류가 발생했습니다.');
+    }
+  };
+
+  const handleVerifyAndDeleteAccount = async () => {
+    if (!deleteVerificationCode) return alert('인증번호를 입력해주세요.');
+    try {
+      const verifyRes = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, code: deleteVerificationCode })
+      });
+      if (!verifyRes.ok) {
+        const errData = await verifyRes.json();
+        return alert(errData.error || '인증에 실패했습니다.');
+      }
+
+      const token = localStorage.getItem('token');
+      const delRes = await fetch('/api/user/profile', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (delRes.ok) {
+        alert('회원탈퇴 처리가 정상적으로 완료되었습니다. 그동안 이용해 주셔서 감사합니다.');
+        localStorage.removeItem('token');
+        window.location.href = '/';
+      } else {
+        alert('회원탈퇴 처리 중 오류가 발생했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('서버 오류가 발생했습니다.');
     }
   };
   
@@ -723,6 +788,37 @@ export default function GalleryPage() {
                           />
                         </div>
                         <button onClick={handleProfileSave} className="w-full mt-4 py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition">저장하기</button>
+                        
+                        <div className="mt-12 pt-6 border-t border-gray-200">
+                          <h3 className="text-sm font-bold text-red-600 mb-2">위험 구역 (회원탈퇴)</h3>
+                          <p className="text-xs text-gray-500 mb-4">탈퇴 시 등록한 작품, 경매 입찰, 결제 내역 등 모든 데이터가 영구적으로 삭제되며 다시 가입하더라도 복구할 수 없습니다.</p>
+                          
+                          {!isDeleteCodeSent ? (
+                            <button 
+                              onClick={handleDeleteAccountRequest}
+                              className="w-full py-2 border border-red-500 text-red-500 font-bold rounded-lg hover:bg-red-50 transition"
+                            >
+                              회원탈퇴 진행 (이메일 인증)
+                            </button>
+                          ) : (
+                            <div className="space-y-3 p-4 bg-red-50 rounded-lg border border-red-100">
+                              <p className="text-xs text-red-700 font-bold text-center">[{userEmail}] 로 발송된 인증번호를 입력해주세요.</p>
+                              <input 
+                                type="text"
+                                placeholder="인증번호 6자리" 
+                                value={deleteVerificationCode}
+                                onChange={e => setDeleteVerificationCode(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:border-red-500 outline-none text-center tracking-widest font-bold"
+                              />
+                              <button 
+                                onClick={handleVerifyAndDeleteAccount}
+                                className="w-full py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-sm"
+                              >
+                                영구 탈퇴 승인
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                     
